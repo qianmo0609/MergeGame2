@@ -9,10 +9,8 @@ public class GameMgr : MonoSingleton<GameMgr>
     Coroutine creategemCoroutine = null;
     Coroutine gemRandomFullCoroutine = null;
     Coroutine gemMergeCoroutione = null;
-    Coroutine restartCoroutione = null;
 
     GemsItem[,] gemsItemsCollect;
-    //Stack<GemsItem> mergeItemCollect; //储藏需要消除的宝石
 
     HashSet<GemsItem> mergeItemCollect; //储藏需要消除的宝石;
 
@@ -46,7 +44,7 @@ public class GameMgr : MonoSingleton<GameMgr>
         gemsItemsCollect = new GemsItem[GameCfg.row, GameCfg.col];
         StartCreateGems();
         mergeItemCollect = new HashSet<GemsItem>();
-        //gemMergeInfos = new Dictionary<int, MergeInfo>();
+        gemMergeInfos = new Dictionary<int, MergeInfo>();
         //bombCollecion = new Stack<GemsItem>(1);
         //visited = new bool[GameCfg.row, GameCfg.col];
         //scoreList = new ScoreList(gameMap.Bg.transform.Find("ListObj"));
@@ -100,6 +98,7 @@ public class GameMgr : MonoSingleton<GameMgr>
                 gemsItemsCollect[j, i] = gemItem;
             }
         }
+        //this.DisplayArray();
         yield return ws02;
         //生成完宝石开始检测
         DetectMergeGems();
@@ -109,6 +108,27 @@ public class GameMgr : MonoSingleton<GameMgr>
             StopCoroutine(this.creategemCoroutine);
             this.creategemCoroutine = null;
         }
+    }
+
+    void DisplayArray()
+    {
+        string s = "";
+        for (int j = 0; j < GameCfg.row; j++)
+        {
+            for (int i = 0; i < GameCfg.col; i++)
+            {
+                if(gemsItemsCollect[j, i] == null)
+                {
+                    s += "8";
+                }
+                else
+                {
+                    s += "0";
+                }
+            }
+            s += "\n";
+        }
+        Debug.Log(s);
     }
 
     GemsItem CreateOneGemItem(Vector3 pos, DirEnum dir, Vector2Int idx,bool isCreateBomb = false,bool isDelay = false)
@@ -203,111 +223,66 @@ public class GameMgr : MonoSingleton<GameMgr>
     public bool DetectGemsMethod()
     {
         bool isMatch = false;
-        int matchNum = 0;
-        int gemType = -1;
 
         #region 暴力检测法
+        GemsItem g1, g2, g3;
         //横向检测
         for (int i = 0; i < GameCfg.row; i++)
         {
-            matchNum = 0;
-            gemType = -1;
-            for (int j = 0; j < GameCfg.col; j++)
-            {
-                if (Utils.IsCorner(new Vector2Int(i,j))) continue;
+            for (int j = 0; j < GameCfg.col-2; j++)
+            {              
                 //因为存储是从左下角开始存储的，所以从头遍历是oK的
-                //g1 = gemsItemsCollect[i, j];
-                //g2 = gemsItemsCollect[i, j + 1];
-                //g3 = gemsItemsCollect[i, j + 2];
-                //if ((g1.GemType & g2.GemType & g3.GemType) != 0)//& gemsItemsCollect[4 * i + j + 3].GemType) != 0)
-                //{
-                //    //那么说明这个三个宝石的类型是一样的
-                //    mergeItemCollect.Push(g1);
-                //    mergeItemCollect.Push(g2);
-                //    mergeItemCollect.Push(g3);
-
-                //    //this.AddMergeInfo(g1.GemType, 100, g1.Type, g1.Idx.x, g1.Idx.y, 3);
-                //    isMatch = true;
-                //}
-                if(gemType == -1)
+                g1 = gemsItemsCollect[i, j];
+                g2 = gemsItemsCollect[i, j + 1];
+                g3 = gemsItemsCollect[i, j + 2];
+                if(g1 != null && g2 != null && g3 != null)
                 {
-                    gemType = gemsItemsCollect[i, j].GemType;
-                }
-                if((gemsItemsCollect[i, j].GemType & gemType) != 0)
-                {
-                    matchNum++;
-                }
-                else
-                {
-                    if (matchNum >= 3)
+                    if ((g1.GemType & g2.GemType & g3.GemType) != 0)
                     {
-                        mergeItemCollect.Add(gemsItemsCollect[i, j - 2]);
-                        mergeItemCollect.Add(gemsItemsCollect[i, j - 1]);
-                        mergeItemCollect.Add(gemsItemsCollect[i, j]);
+                        //那么说明这个三个宝石的类型是一样的
+                        mergeItemCollect.Add(g1);
+                        mergeItemCollect.Add(g2);
+                        mergeItemCollect.Add(g3);
                         isMatch = true;
+                        this.AddMergeInfo(g1.GemType, 100, g1.Type, g1.Idx.x, g1.Idx.y, 3);
                     }
-                    matchNum = 0;
-                    gemType = gemsItemsCollect[i, j].GemType;
                 }
             }
         }
         int num = 0;
         //纵向检测
-        for (int i = 0; i < GameCfg.row; i++)
+        for (int i = 0; i < GameCfg.row - 2; i++)
         {
-            matchNum = 0;
-            gemType = -1;
             for (int j = 0; j < GameCfg.col; j++)
             {
-                if (Utils.IsCorner(new Vector2Int(i, j))) continue;
-                //num = 0;
-                ////因为存储是从左下角开始存储的，所以从头遍历是oK的
-                //g1 = gemsItemsCollect[i, j];
-                //g2 = gemsItemsCollect[i + 1, j];
-                //g3 = gemsItemsCollect[i + 2, j];
-                //if ((g1.GemType & g2.GemType & g3.GemType) != 0)//& gemsItemsCollect[i + j * 4 + 3].GemType) != 0)
-                //{
-                //    //那么说明这个三个宝石的类型是一样的
-                //    if (!mergeItemCollect.Contains(g1))
-                //    {
-                //        mergeItemCollect.Push(g1);
-                //        isMatch = true;
-                //        num++;
-                //    }
-                //    if (!mergeItemCollect.Contains(g2))
-                //    {
-                //        mergeItemCollect.Push(g2);
-                //        isMatch = true;
-                //        num++;
-                //    }
-                //    if (!mergeItemCollect.Contains(g3))
-                //    {
-                //        mergeItemCollect.Push(g3);
-                //        isMatch = true;
-                //        num++;
-                //    }
-                //    //this.AddMergeInfo(g1.GemType, 100, g1.Type, g1.Idx.x, g1.Idx.y, num);
-                //}
-
-                if (gemType == -1)
+                num = 0;
+                g1 = gemsItemsCollect[i,j];
+                g2 = gemsItemsCollect[i + 1,j];
+                g3 = gemsItemsCollect[i + 2,j];
+                if (g1 != null && g2 != null && g3 != null)
                 {
-                    gemType = gemsItemsCollect[i, j].GemType;
-                }
-                if ((gemsItemsCollect[i, j].GemType & gemType) != 0)
-                {
-                    matchNum++;
-                }
-                else
-                {
-                    if (matchNum >= 3)
+                    if ((g1.GemType & g2.GemType & g3.GemType) != 0)
                     {
-                        mergeItemCollect.Add(gemsItemsCollect[i - 2, j]);
-                        mergeItemCollect.Add(gemsItemsCollect[i - 1, j]);
-                        mergeItemCollect.Add(gemsItemsCollect[i, j]);
-                        isMatch = true;
+                        if (!mergeItemCollect.Contains(g1))
+                        {
+                            mergeItemCollect.Add(g1);
+                            isMatch = true;
+                            num++;
+                        }
+                        if (!mergeItemCollect.Contains(g2))
+                        {
+                            mergeItemCollect.Add(g2);
+                            isMatch = true;
+                            num++;
+                        }
+                        if (!mergeItemCollect.Contains(g3))
+                        {
+                            mergeItemCollect.Add(g3);
+                            isMatch = true;
+                            num++;
+                        }
+                        this.AddMergeInfo(g1.GemType, 100, g1.Type, g1.Idx.x, g1.Idx.y, num);
                     }
-                    gemType = gemsItemsCollect[i, j].GemType;
-                    matchNum = 0;
                 }
             }
         }
@@ -363,7 +338,7 @@ public class GameMgr : MonoSingleton<GameMgr>
         {
             item.PlayMergeEffect();
         }
-        //yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(.5f);
         //再整理棋盘
         foreach (var item in mergeItemCollect)
         {
@@ -410,23 +385,24 @@ public class GameMgr : MonoSingleton<GameMgr>
     {
         int xIdx = x;
         //如g是第二行的元素，要从第三行、第四行将元素下移
-        //Sequence sequence = DOTween.Sequence();
         for (int i = x; i > 0; i--)
         {
-            if (Utils.IsCorner(new Vector2Int(i-1, y)) || Utils.IsCorner(new Vector2Int(i, y))) continue;
+            if (Utils.IsCorner(new Vector2Int(i, y))) continue;
             //得到上一行的GemItem
             GemsItem g1 = gemsItemsCollect[i-1,y];
-            //清空原位置数据
-            gemsItemsCollect[i-1,y] = null;
+            if (g1 == null)
+            {
+                this.ReplenishGem(i, y, Utils.GetStartPos(0, y), false);
+                continue;
+            }
             //将得到的GemItem赋值给下一行
             gemsItemsCollect[i,y] = g1;
             g1.Idx = new Vector2Int(xIdx, y);
-            //将GemItem滑动到下一行
-            //sequence.Join(g1.TweenTOPosition());
+            //清空原位置数据
+            gemsItemsCollect[i - 1, y] = null;
             g1.TweenTOPosition();
             xIdx--;
         }
-        //sequence.Play();
         bool isCreateBomb = false;
         //先计算炸弹概率，是否需要生成炸弹
         //if (this.CalacBombPercentage())
@@ -479,8 +455,8 @@ public class GameMgr : MonoSingleton<GameMgr>
     void ReplenishGem(int x, int y, Vector3 curPos, bool isCreateBomb = false)
     {
         if (Utils.IsCorner(new Vector2Int(x, y))) return;
-        GemsItem gNew = CreateOneGemItem(curPos, y < 3 ? DirEnum.left : DirEnum.right, new Vector2Int(0, y),isCreateBomb);
-        gemsItemsCollect[0,y] = gNew;
+        GemsItem gNew = CreateOneGemItem(curPos, y < 3 ? DirEnum.left : DirEnum.right, new Vector2Int(x, y),isCreateBomb);
+        gemsItemsCollect[x,y] = gNew;
         //如果是炸弹则添加
         if (isCreateBomb)
         {
