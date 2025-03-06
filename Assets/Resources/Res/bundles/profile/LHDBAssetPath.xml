@@ -1,0 +1,11 @@
+﻿<documents>
+	<screen name="Game">
+    <asset path="LHDB/panel/LHDB_GameView" />
+    <asset path="LHDB/panel/LHDB_AnimChangeLV" />
+    <asset path="LHDB/panel/LhdbBigWinPopPanel" />
+    <asset path="LHDB/panel/LHDB_GameMsgWaitPanel" />
+    <asset path="LHDB/panel/LhdbMsgBoxPopPanel" />
+    <asset path="LHDB/panel/LHDB_PassAll" />
+    <asset path="LHDB/panel/LHDB_Result" />
+	</screen>
+</documents>
