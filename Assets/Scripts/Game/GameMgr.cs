@@ -189,7 +189,6 @@ public class GameMgr : MonoSingleton<GameMgr>
         //如果检测到有可以清除的宝石，执行清除方法
         if (DetectGemsMethod())
         {
-            this.DisplayArray();
             //将点分类
             this.SearchPoint();
             gemMergeCoroutione = StartCoroutine(MergeGems());
@@ -301,7 +300,7 @@ public class GameMgr : MonoSingleton<GameMgr>
                 if (mapFlag[i,j] == 1)
                 {
                     //就从当前点开始查找
-                    gemsItems.Add(this.FindMatches(i,j));
+                    gemsItems.Add(this.FindMatches(i, j));
                 }
             }
         }
@@ -315,12 +314,10 @@ public class GameMgr : MonoSingleton<GameMgr>
         new Vector2Int(0,1) //右
     };
 
-    HashSet<Vector2Int> matches = new HashSet<Vector2Int>();
-    Queue<Vector2Int> queue = new Queue<Vector2Int>();
     HashSet<Vector2Int> FindMatches(int x,int y)
     {
-        matches.Clear();
-        queue.Clear();
+        HashSet<Vector2Int> matches = new HashSet<Vector2Int>();
+        Queue<Vector2Int> queue = new Queue<Vector2Int>();
 
         // 初始化队列
         queue.Enqueue(new Vector2Int(x,y));
@@ -347,12 +344,6 @@ public class GameMgr : MonoSingleton<GameMgr>
                 }
             }
         }
-        string s = "";
-        foreach (var item in matches)
-        {
-            s += $"{item.x} + {item.y} ";
-        }
-        Debug.Log(s);
         return matches;
     }
 
@@ -386,9 +377,8 @@ public class GameMgr : MonoSingleton<GameMgr>
         //    this.CreateFlyGemItem(item);
         //    yield return new WaitForSeconds(.1f);
         //}
-
+        yield return new WaitForSeconds(1f);
         HashSet<Vector2Int> gems;
-        Debug.Log("ccccccccccc");
         for (int i = 0; i < gemsItems.Count; i++)
         {
             //TODO:根据数量形状判断生成炸弹
@@ -401,23 +391,22 @@ public class GameMgr : MonoSingleton<GameMgr>
             }
             yield return new WaitForSeconds(.8f);
         }
-        //GemsItem g;
-        //for (int i = 0; i < gemsItems.Count; i++)
-        //{
-        //    //再整理棋盘
-        //    foreach (var item in gemsItems[i])
-        //    {
-        //        g = gemsItemsCollect[item.x, item.y];
-        //        if (g.IsBomb == BombType.none)
-        //        {
-        //            MergeGemAndMove(g.Idx.x, g.Idx.y);
-        //            g?.RecycleSelf();
-        //        }
-        //    }
-        //}
+        GemsItem g;
+        for (int i = 0; i < gemsItems.Count; i++)
+        {
+            //再整理棋盘
+            foreach (var item in gemsItems[i])
+            {
+                g = gemsItemsCollect[item.x, item.y];
+                if (g.IsBomb == BombType.none)
+                {
+                    MergeGemAndMove(g.Idx.x, g.Idx.y);
+                    g?.RecycleSelf();
+                }
+            }
+        }
 
-        ////清空合并信息
-        //mergeItemCollect.Clear();
+        //清空合并信息
         System.Array.Clear(mapFlag, 0, mapFlag.Length);
 
         //清除缓存的各类型的分数信息
