@@ -14,7 +14,7 @@ public class ResManager : Singleton<ResManager>
     public GameObject buttomWall;
     public Sprite[] gemsSprites;
     public Sprite[] comboSprites;
-    public Sprite bombSprite;
+    public Sprite[] bombSprites;
     public GameObject[] effcts;
     public GameObject effectBomb;
     public EffectTextItem effectTextItems;
@@ -35,17 +35,17 @@ public class ResManager : Singleton<ResManager>
         slotClaybankPrefab = Resources.Load<GameObject>(ConstValue.slotClaybankPath);
         this.OnLoadUIWindows();
         this.OnLoadSprite();
-
+        this.OnLoadBombSprite();
+        this.OnLoadEffct();
 
         //effectTextItems = Resources.Load<EffectTextItem>($"Res/Prefabs/EffectText");
         //wall = Resources.Load<GameObject>("Res/Prefabs/Wall");
         //buttomWall = Resources.Load<GameObject>("Res/Prefabs/ButtomWall");
         //effectBomb = Resources.Load<GameObject>("Res/Prefabs/Effect/elem_bomb_0");
         //scoreListItem = Resources.Load<ScoreListItem>("Res/Prefabs/ScoreItem");
-        //bombSprite = Resources.Load<Sprite>("Res/lhdb/lhdb_ui_gems/gem_bomb");
         //customSpriteMat = Resources.Load<Material>("Res/Mat/CustomSpriteClip");
 
-        //this.OnLoadEffct();
+
         //this.OnLoadComboSprites();
         //this.OnLoadLevelSprite();
     }
@@ -62,13 +62,28 @@ public class ResManager : Singleton<ResManager>
             gemsSprites[i] = Resources.Load<Sprite>(sb.ToString());
         }
     }
+    
+    void OnLoadUIWindows()
+    {
+        uiWinsPrefab = new Dictionary<string, UIBase>();
+        uiWinsPrefab.Add(typeof(MainUI).Name, Resources.Load<MainUI>(ConstValue.mainUIPath));
+    }
+
+    void OnLoadBombSprite()
+    {
+        bombSprites = new Sprite[4];
+        bombSprites[0] = Resources.Load<Sprite>(ConstValue.horBombPath);
+        bombSprites[1] = Resources.Load<Sprite>(ConstValue.verBombPath);
+        bombSprites[2] = Resources.Load<Sprite>(ConstValue.superBombPath);
+        bombSprites[3] = Resources.Load<Sprite>(ConstValue.largeBombPath);
+    }
 
     void OnLoadEffct()
     {
         effcts = new GameObject[5];
         for (int i = 1; i < 6; i++)
         {
-           effcts[i-1] = Resources.Load<GameObject>($"Res/Prefabs/Effect/elem_eli_{i}_0");
+           effcts[i-1] = Resources.Load<GameObject>(string.Format(ConstValue.gemEffectPath,i));
         }
     }
 
@@ -81,11 +96,7 @@ public class ResManager : Singleton<ResManager>
         }
     }
 
-    void OnLoadUIWindows()
-    {
-        uiWinsPrefab = new Dictionary<string, UIBase>();
-        uiWinsPrefab.Add(typeof(MainUI).Name,Resources.Load<MainUI>(ConstValue.mainUIPath));
-    }
+ 
 
     void OnLoadLevelSprite()
     {
@@ -94,6 +105,7 @@ public class ResManager : Singleton<ResManager>
         levelSprite[1] = Resources.Load<Sprite>("Res/lhdb/lhdb_ui_main/h5by_xyx_deg");
         levelSprite[2] = Resources.Load<Sprite>("Res/lhdb/lhdb_ui_main/h5by_xyx_dsg");
     }
+
     public void OnDestroy()
     {
         Resources.UnloadUnusedAssets();

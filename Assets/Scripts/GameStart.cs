@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameStart : MonoBehaviour
 {
+    [SerializeField] CurveManager curveManager; 
    void Start()
     {
         Application.targetFrameRate = 60;
@@ -14,11 +15,11 @@ public class GameStart : MonoBehaviour
         CreateFactory.Instance.OnInit();
         UIManager.Instance.OnInit();
         GameMgr.Instance.OnInit();
+        Instantiate(curveManager);
     }
 
     private void OnDestroy()
     {
-        GameMgr.Instance.OnDestroy();
         LocalData.Instance.OnDisable();
         PoolManager.Instance.OnDestroy();
         EventCenter.Instance.Disable();

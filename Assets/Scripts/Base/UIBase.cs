@@ -17,7 +17,7 @@ public class UIBase : MonoBehaviour
 
     public virtual void Hide() 
     {
-        this.gameObject.SetActive(false);
+        this.gameObject.SetActive(false); 
     }
 
     public void OnDestroy()

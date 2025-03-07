@@ -6,22 +6,19 @@ public class GameMgr : MonoSingleton<GameMgr>
 {
     GameMap gameMap = null;
     GameObject grid = null;
+    BombManager bombManager = null; // 炸弹管理器
     Coroutine creategemCoroutine = null;
     Coroutine gemRandomFullCoroutine = null;
     Coroutine gemMergeCoroutione = null;
 
-    GemsItem[,] gemsItemsCollect;
+    GemsItem[,] gemsItemsCollect; //游戏中的宝石数据
+    int[,] mapFlag; //用于标记消除位置的物体类型
+    List<HashSet<Vector2Int>> gemsItems; //用于存储分类后的物体
 
-    HashSet<GemsItem> mergeItemCollect; //储藏需要消除的宝石;
-
-    ScoreList scoreList;
-
+    List<BombItemInfo> bombItems; //存储当前的炸弹信息
     Dictionary<int,MergeInfo> gemMergeInfos;
 
-    int bombNumEatchRound = 1;
-    Stack<GemsItem> bombCollecion;
-
-    private bool[,] visited;// 检测标记数组
+    private bool isFirst; //是否是第一次执行
 
     #region yiled return 定义
     WaitForSeconds ws005;
@@ -37,17 +34,18 @@ public class GameMgr : MonoSingleton<GameMgr>
     public override void OnInit()
     {
         this.CreateGrid();
+        this.CreateWS();
         gameMap = new GameMap();
+        bombManager = new BombManager();
         gameMap.OnInitLayout(grid);
         UIManager.Instance.GetWindow<MainUI>().Show();
-        this.CreateWS();
         gemsItemsCollect = new GemsItem[GameCfg.row, GameCfg.col];
-        StartCreateGems();
-        mergeItemCollect = new HashSet<GemsItem>();
         gemMergeInfos = new Dictionary<int, MergeInfo>();
-        //bombCollecion = new Stack<GemsItem>(1);
-        //visited = new bool[GameCfg.row, GameCfg.col];
-        //scoreList = new ScoreList(gameMap.Bg.transform.Find("ListObj"));
+        bombItems = new List<BombItemInfo>();
+        mapFlag = new int[GameCfg.row, GameCfg.col];
+        gemsItems = new List<HashSet<Vector2Int>>();
+        this.isFirst = true;
+        EventCenter.Instance.RegisterEvent(EventNum.startEvent, this.StartRandomFull);
     }
 
     void CreateWS()
@@ -94,7 +92,7 @@ public class GameMgr : MonoSingleton<GameMgr>
             for (int i = 0; i < GameCfg.col; i++)
             {
                 if (Utils.IsCorner(new Vector2Int(j, i))) continue;
-                GemsItem gemItem = CreateOneGemItem(Utils.GetStartPos(j, i), i <= 1 ? DirEnum.left : DirEnum.right, new Vector2Int(j, i),isDelay:true);
+                GemsItem gemItem = CreateOneGemItem(Utils.GetStartPos(j, i), i <= 1 ? DirEnum.left : DirEnum.right, new Vector2Int(j, i));
                 gemsItemsCollect[j, i] = gemItem;
             }
         }
@@ -117,21 +115,14 @@ public class GameMgr : MonoSingleton<GameMgr>
         {
             for (int i = 0; i < GameCfg.col; i++)
             {
-                if(gemsItemsCollect[j, i] == null)
-                {
-                    s += "8";
-                }
-                else
-                {
-                    s += "0";
-                }
+                s += mapFlag[j, i];
             }
             s += "\n";
         }
         Debug.Log(s);
     }
 
-    GemsItem CreateOneGemItem(Vector3 pos, DirEnum dir, Vector2Int idx,bool isCreateBomb = false,bool isDelay = false)
+    GemsItem CreateOneGemItem(Vector3 pos, DirEnum dir, Vector2Int idx,bool isCreateBomb = false)
     {
         GemsItem gemItem = CreateFactory.Instance.CreateGameObj<GemsItem>(GameObjEunm.gemItem);
         gemItem.transform.SetParent(grid.transform);
@@ -140,9 +131,9 @@ public class GameMgr : MonoSingleton<GameMgr>
         {
             //需要按概率生成
             int spriteIdx = Utils.getGemsIdx(Utils.RandomIntVale(0, 10001));
-            gemItem.OnInitInfo(isCreateBomb?ResManager.Instance.bombSprite:ResManager.Instance.gemsSprites[spriteIdx], spriteIdx, dir, idx,isCreateBomb);
+            gemItem.OnInitInfo(ResManager.Instance.gemsSprites[spriteIdx], spriteIdx, dir, idx,BombType.none);
         }
-        gemItem.TweenTOPosition(isDelay:isDelay);
+        gemItem.TweenTOPosition();
         return gemItem;
     }
 
@@ -151,10 +142,16 @@ public class GameMgr : MonoSingleton<GameMgr>
     /// </summary>
     void StartRandomFull()
     {
-        if (GameCfg.gameState != GameState.idle) { Debug.Log(ConstValue.tips); return; }
-        gemRandomFullCoroutine = StartCoroutine(RandomFull());
-        //如果不是在挂机状态下，每次点击都需要禁用掉开始按钮
-        GameCfg.isEnableBtnStart = false;
+        if (GameCfg.gameState != GameState.idle) { Debug.Log(ConstValue.tips); Debug.Log($"当前的游戏状态是：{GameCfg.gameState}"); return; }
+        if (this.isFirst)
+        {
+            this.StartCreateGems();
+            this.isFirst = false;
+        }
+        else
+        {
+            gemRandomFullCoroutine = StartCoroutine(RandomFull());
+        }
     }
 
     IEnumerator RandomFull(bool isReCreateFGems = true)
@@ -164,16 +161,15 @@ public class GameMgr : MonoSingleton<GameMgr>
         {
             for (int j = 0; j < gemsItemsCollect.GetLength(1); j++)
             {
+                if (Utils.IsCorner(new Vector2Int(i, j))) continue;
                 g = gemsItemsCollect[i,j];
                 g.IsFull = true;
             }
         }
-        //清空分数显示
-        //scoreList.OnRestInfo();
+        //TODO:清空分数显示
+
         //掉落完成之后要清除这部分宝石
         System.Array.Clear(gemsItemsCollect, 0, gemsItemsCollect.Length);
-        //重置每轮炸弹数
-        this.bombNumEatchRound = 1;
         //下落完成后再生成宝石
         yield return ws08;
         if (isReCreateFGems) { StartCreateGems(); }
@@ -190,12 +186,12 @@ public class GameMgr : MonoSingleton<GameMgr>
     /// </summary>
     public void DetectMergeGems()
     {
-        //如果游戏结束了，就不需要检测了
-        if (GameCfg.gameState == GameState.gameOver) return;
         //如果检测到有可以清除的宝石，执行清除方法
         if (DetectGemsMethod())
         {
-            GameCfg.comboNum++;
+            this.DisplayArray();
+            //将点分类
+            this.SearchPoint();
             gemMergeCoroutione = StartCoroutine(MergeGems());
         }
         else
@@ -208,11 +204,6 @@ public class GameMgr : MonoSingleton<GameMgr>
                 //如果没有检测到可以合并的宝石，则全部宝石下落，重新生成所有宝石
                 StartRandomFull();
             }
-            else
-            {
-                //如果不是挂机状态，则需要开启StartBtn
-                GameCfg.isEnableBtnStart = true;
-            }
         }
     }
 
@@ -223,71 +214,9 @@ public class GameMgr : MonoSingleton<GameMgr>
     public bool DetectGemsMethod()
     {
         bool isMatch = false;
-
         #region 暴力检测法
-        GemsItem g1, g2, g3;
-        //横向检测
-        for (int i = 0; i < GameCfg.row; i++)
-        {
-            for (int j = 0; j < GameCfg.col-2; j++)
-            {              
-                //因为存储是从左下角开始存储的，所以从头遍历是oK的
-                g1 = gemsItemsCollect[i, j];
-                g2 = gemsItemsCollect[i, j + 1];
-                g3 = gemsItemsCollect[i, j + 2];
-                if(g1 != null && g2 != null && g3 != null)
-                {
-                    if ((g1.GemType & g2.GemType & g3.GemType) != 0)
-                    {
-                        //那么说明这个三个宝石的类型是一样的
-                        mergeItemCollect.Add(g1);
-                        mergeItemCollect.Add(g2);
-                        mergeItemCollect.Add(g3);
-                        isMatch = true;
-                        this.AddMergeInfo(g1.GemType, 100, g1.Type, g1.Idx.x, g1.Idx.y, 3);
-                    }
-                }
-            }
-        }
-        int num = 0;
-        //纵向检测
-        for (int i = 0; i < GameCfg.row - 2; i++)
-        {
-            for (int j = 0; j < GameCfg.col; j++)
-            {
-                num = 0;
-                g1 = gemsItemsCollect[i,j];
-                g2 = gemsItemsCollect[i + 1,j];
-                g3 = gemsItemsCollect[i + 2,j];
-                if (g1 != null && g2 != null && g3 != null)
-                {
-                    if ((g1.GemType & g2.GemType & g3.GemType) != 0)
-                    {
-                        if (!mergeItemCollect.Contains(g1))
-                        {
-                            mergeItemCollect.Add(g1);
-                            isMatch = true;
-                            num++;
-                        }
-                        if (!mergeItemCollect.Contains(g2))
-                        {
-                            mergeItemCollect.Add(g2);
-                            isMatch = true;
-                            num++;
-                        }
-                        if (!mergeItemCollect.Contains(g3))
-                        {
-                            mergeItemCollect.Add(g3);
-                            isMatch = true;
-                            num++;
-                        }
-                        this.AddMergeInfo(g1.GemType, 100, g1.Type, g1.Idx.x, g1.Idx.y, num);
-                    }
-                }
-            }
-        }
         #endregion
-
+        isMatch = this.CheckThree();
         #region 滑动窗口算法
         /*
          * 如果是3个可以消除，那么以滑动窗口的大小为5*5的，第二次检测就可以跳过前三个元素，
@@ -301,6 +230,130 @@ public class GameMgr : MonoSingleton<GameMgr>
          */
         #endregion
         return isMatch;
+    }
+
+    /// <summary>
+    /// 检查3x3
+    /// </summary>+
+    /// <returns></returns>
+    bool CheckThree()
+    {
+        bool isMatch = false;
+        GemsItem g1, g2, g3;
+        //横向检测
+        for (int i = 0; i < GameCfg.row; i++)
+        {
+            for (int j = 0; j < GameCfg.col - 2; j++)
+            {
+                //因为存储是从左下角开始存储的，所以从头遍历是oK的
+                g1 = gemsItemsCollect[i, j];
+                g2 = gemsItemsCollect[i, j + 1];
+                g3 = gemsItemsCollect[i, j + 2];
+                if (g1 != null && g2 != null && g3 != null)
+                {
+                    if ((g1.GemType & g2.GemType & g3.GemType) != 0)
+                    {
+                        mapFlag[g1.Idx.x, g1.Idx.y] = 1;
+                        mapFlag[g2.Idx.x, g2.Idx.y] = 1;
+                        mapFlag[g3.Idx.x, g3.Idx.y] = 1;
+                        isMatch = true;
+                    }
+                }
+            }
+        }
+
+        //纵向检测
+        for (int i = 0; i < GameCfg.row - 2; i++)
+        {
+            for (int j = 0; j < GameCfg.col; j++)
+            {
+                g1 = gemsItemsCollect[i, j];
+                g2 = gemsItemsCollect[i + 1, j];
+                g3 = gemsItemsCollect[i + 2, j];
+                if (g1 != null && g2 != null && g3 != null)
+                {
+                    if ((g1.GemType & g2.GemType & g3.GemType) != 0)
+                    {
+                        mapFlag[g1.Idx.x, g1.Idx.y] = 1;
+                        mapFlag[g2.Idx.x, g2.Idx.y] = 1;
+                        mapFlag[g3.Idx.x, g3.Idx.y] = 1;
+                        isMatch = true;
+                    }
+                }
+            }
+        }
+        return isMatch;
+    }
+
+
+    /// <summary>
+    /// 将遍历标记完的地图，筛选出符合要求的点
+    /// </summary>
+    void SearchPoint()
+    {
+        //1.首先找到地图中一个不为0的点，设置为当前点
+        //2.使用DFS/BFS 找到这个点的连通的所有点，遍历的时候每拿到一个点就将标记清除
+        //3.从当前点开始遍历，再找到一个合适点，直到遍历完成
+        for (int i = 0; i < GameCfg.row; i++)
+        {
+            for (int j = 0; j < GameCfg.col; j++)
+            {
+                if (mapFlag[i,j] == 1)
+                {
+                    //就从当前点开始查找
+                    gemsItems.Add(this.FindMatches(i,j));
+                }
+            }
+        }
+    }
+
+    // 四方向向量：上、下、左、右
+    Vector2Int[] directions = {
+        new Vector2Int(-1,0), //上
+        new Vector2Int(1,0), //下
+        new Vector2Int(0,-1), //左 
+        new Vector2Int(0,1) //右
+    };
+
+    HashSet<Vector2Int> matches = new HashSet<Vector2Int>();
+    Queue<Vector2Int> queue = new Queue<Vector2Int>();
+    HashSet<Vector2Int> FindMatches(int x,int y)
+    {
+        matches.Clear();
+        queue.Clear();
+
+        // 初始化队列
+        queue.Enqueue(new Vector2Int(x,y));
+        mapFlag[x, y] = 0;
+
+        while (queue.Count > 0)
+        {
+            Vector2Int current = queue.Dequeue();
+            matches.Add(current);
+
+            foreach (Vector2Int dir in directions)
+            {
+                Vector2Int next = current + dir;
+
+                // 边界检查
+                if (next.x < 0 || next.x >= GameCfg.row) continue;
+                if (next.y < 0 || next.y >= GameCfg.col) continue;
+
+                // 类型检查 && 访问标记 
+                if (mapFlag[next.x, next.y] == 1)
+                {
+                    mapFlag[next.x, next.y] = 0;
+                    queue.Enqueue(new Vector2Int(next.x, next.y));
+                }
+            }
+        }
+        string s = "";
+        foreach (var item in matches)
+        {
+            s += $"{item.x} + {item.y} ";
+        }
+        Debug.Log(s);
+        return matches;
     }
 
     void AddMergeInfo(int gemType, int score, int type, int row, int col,int num)
@@ -333,34 +386,50 @@ public class GameMgr : MonoSingleton<GameMgr>
         //    this.CreateFlyGemItem(item);
         //    yield return new WaitForSeconds(.1f);
         //}
-        //先清除棋盘上的gem和播放特效
-        foreach (var item in mergeItemCollect)
-        {
-            item.PlayMergeEffect();
-        }
-        yield return new WaitForSeconds(.5f);
-        //再整理棋盘
-        foreach (var item in mergeItemCollect)
-        {
-            MergeGemAndMove(item.Idx.x, item.Idx.y);
-            item.RecycleSelf();
-        }
 
-        //清空合并信息
-        mergeItemCollect.Clear();
+        HashSet<Vector2Int> gems;
+        Debug.Log("ccccccccccc");
+        for (int i = 0; i < gemsItems.Count; i++)
+        {
+            //TODO:根据数量形状判断生成炸弹
+
+            gems = gemsItems[i];
+            //先清除棋盘上的gem和播放特效
+            foreach (var item in gems)
+            {
+                gemsItemsCollect[item.x,item.y]?.PlayMergeEffect();
+            }
+            yield return new WaitForSeconds(.8f);
+        }
+        //GemsItem g;
+        //for (int i = 0; i < gemsItems.Count; i++)
+        //{
+        //    //再整理棋盘
+        //    foreach (var item in gemsItems[i])
+        //    {
+        //        g = gemsItemsCollect[item.x, item.y];
+        //        if (g.IsBomb == BombType.none)
+        //        {
+        //            MergeGemAndMove(g.Idx.x, g.Idx.y);
+        //            g?.RecycleSelf();
+        //        }
+        //    }
+        //}
+
+        ////清空合并信息
+        //mergeItemCollect.Clear();
+        System.Array.Clear(mapFlag, 0, mapFlag.Length);
 
         //清除缓存的各类型的分数信息
         //gemMergeInfos.Clear();
 
         //如果生成炸弹了,先处理炸弹
-        //if (bombCollecion.Count > 0)
-        //{
-        //    GemsItem g = bombCollecion.Pop();
-        //    Vector2Int idx = g.Idx;
-        //    yield return ws03;
-        //    g.gameObject.SetActive(false);
-        //    this.CreateBomb(Utils.GetCurrentPos(idx.x, idx.y), idx.x, idx.y);
-        //}
+        if (bombItems.Count > 0)
+        {
+            //处理对应炸弹功能
+            //首先拿出第一个炸弹信息
+            //bombManager.HandlerBomb(bombItems[0], gemsItemsCollect, mergeItemCollect,bombItems);
+        }
         yield return ws08;
 
         if (gemMergeCoroutione != null)
@@ -368,8 +437,9 @@ public class GameMgr : MonoSingleton<GameMgr>
             StopCoroutine(gemMergeCoroutione);
             gemMergeCoroutione = null;
         }
+
         //整理完成之后再进行检测
-        DetectMergeGems();
+        //DetectMergeGems();
     }
 
     //生成一个飞行物体飞到旁边
@@ -377,8 +447,7 @@ public class GameMgr : MonoSingleton<GameMgr>
     {
         //增加本地数据记录
         LocalData.Instance.AddScoreData(new ScoreData { type = mergeInfo.type, num = mergeInfo.num});
-        //增加从一个飞行物体飞到指定位置
-        scoreList.AddItem(mergeInfo);
+        //TODO:增加从一个飞行物体飞到指定位置
     }
 
     void MergeGemAndMove(int x, int y) 
@@ -404,49 +473,8 @@ public class GameMgr : MonoSingleton<GameMgr>
             xIdx--;
         }
         bool isCreateBomb = false;
-        //先计算炸弹概率，是否需要生成炸弹
-        //if (this.CalacBombPercentage())
-        //{
-        //    //如果小于30，则说明本次生成的是炸弹
-        //    //this.CreateBomb(Utils.GetCurrentPos(0, y), 0, y);
-        //    isCreateBomb = true;
-        //    //将生成的炸弹数减1
-        //    this.bombNumEatchRound--;
-        //}
         //补充新的GemsItem到顶部位置
         this.ReplenishGem(0, y, Utils.GetStartPos(0, y), isCreateBomb);
-    }
-
-    void CreateBomb(Vector3 curPos,int x, int y)
-    {
-        Bomb b = CreateFactory.Instance.CreateGameObj<Bomb>(GameObjEunm.bomb);
-        //b.OnInitInfo(new MergeInfo { row = x,col = y}, gameMap.GetCurrentWallPos(), ResManager.Instance.bombSprite, this.BombCb,true);
-    }
-
-    /// <summary>
-    /// 炸弹执行完后的回调函数
-    /// </summary>
-    void BombCb(MergeInfo mergeInfo)
-    {
-        this.MergeGemAndMove(mergeInfo.row, mergeInfo.col);
-        //if (gameMap.DestroyWall())
-        //{
-        //    GameCfg.gameState = GameState.gameOver;
-        //    restartCoroutione = StartCoroutine(this.OnRestartGame());
-        //}
-    }
-
-    /// <summary>
-    /// 计算炸弹概率
-    /// </summary>
-    bool CalacBombPercentage()
-    {
-        //需要计算产生新的Gem还是炸弹，如果是产生炸弹，则需要先生成炸弹再生成新的Gem，新产生的炸弹目前默认是在第0行，如需在任意位置则需要修改此时行列值
-        if (this.bombNumEatchRound > 0 &&  Utils.RandomFloatVale(0.0f, GameCfg.bombPercentageDenominator) < GameCfg.bombPercentageNumerator)
-        {
-            return true;
-        }
-        return false;
     }
 
     /// <summary>
@@ -457,11 +485,6 @@ public class GameMgr : MonoSingleton<GameMgr>
         if (Utils.IsCorner(new Vector2Int(x, y))) return;
         GemsItem gNew = CreateOneGemItem(curPos, y < 3 ? DirEnum.left : DirEnum.right, new Vector2Int(x, y),isCreateBomb);
         gemsItemsCollect[x,y] = gNew;
-        //如果是炸弹则添加
-        if (isCreateBomb)
-        {
-            bombCollecion.Push(gNew);
-        }
     }
 
     public override void OnDestroy()

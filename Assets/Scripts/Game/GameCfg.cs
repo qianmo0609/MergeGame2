@@ -11,12 +11,14 @@ public class GameCfg
     public static float offsetY = 0.534f;
 
     public static Vector3 startPoss = new Vector3(-1.8958f,1.73f,0);
-    public static Dictionary<Vector2Int,bool> claybankSlotIdxs = new Dictionary<Vector2Int, bool> {
+    public static Dictionary<Vector2Int, bool> claybankSlotIdxs = new Dictionary<Vector2Int, bool> {
     { new Vector2Int(0,0),true},{new Vector2Int(0,1),true},{new Vector2Int(1,0),true }, //左上
     { new Vector2Int(0,7),true},{new Vector2Int(0,8),true},{new Vector2Int(1,8), true},//右上
     { new Vector2Int(7,0),true},{new Vector2Int(8,0),true},{new Vector2Int(8,1),true } ,//左下
     { new Vector2Int(7,8),true},{new Vector2Int(8,7),true},{new Vector2Int(8,8),true }  //右下
     };
+
+    public static bool isHandUp = false; //是否挂起
 
     public static int totalScore = 0;
     public static int comboNum = 0;
@@ -28,8 +30,6 @@ public class GameCfg
     public static int[] gridPerRow = new int[3] { 4, 5, 6 };
 
     public static int level = 1;
-
-    public static bool isHandUp = false; //是否挂起
 
     //public static Vector3[] startPoss = new Vector3[] { new Vector3(-1f, 0.03f, 0), new Vector3(-1f, 0.68f, 0), new Vector3(-1.68f, 1.313f, 0) };
 
@@ -71,12 +71,11 @@ public class GameCfg
 
 public static class ConstValue
 {
-    public static string btnStartNormalSpriteName = "h5by_xyx_ks"; //开始按钮的正常显示精灵名
-    public static string btnStartHandUpSpriteName = "h5by_xyx_qxgj"; //开始按钮在挂机时显示的精灵名
-    public static string btnStartDisableSpriteName = "h5by_xyx_hsks"; //开始按钮在禁用显示的精灵名
+    public static string btnStartNormalSpriteName = "sxyx_main sxyx_main_92"; //开始按钮的正常显示精灵名
+    public static string btnStartHandUpSpriteName = "sxyx_main sxyx_main_78"; //开始按钮在挂机时显示的精灵名
     
-    public static string btnHandUpNormalSpriteName = "h5by_xyx_gj"; //挂机按钮在正常时显示的精灵名
-    public static string btnHandUpHandUpSpriteName = "h5by_xyx_gjz"; //挂机按钮在挂机时显示的精灵名   
+    public static string btnHandUpNormalSpriteName = "sxyx_main sxyx_main_67"; //挂机按钮在正常时显示的精灵名
+    public static string btnHandUpHandUpSpriteName = "sxyx_main sxyx_main_95"; //挂机按钮在挂机时显示的精灵名   
 
     public static string symbolX = "x";
 
@@ -92,7 +91,11 @@ public static class ConstValue
     public static string slotClaybankPath = "Res/Prefabs/SlotClaybank";
     public static string slotBGPath = "Res/Prefabs/BG";
     public static string gemItemPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_";
-
+    public static string largeBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_97"; //大炸弹
+    public static string verBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_94"; //竖向炸弹
+    public static string horBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_88"; //横向炸弹
+    public static string superBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_96";//超级炸弹
+    public static string gemEffectPath = "Res/Prefabs/Effect/elem_eli_{0}_0"; //宝石消除特效
 }
 
 public enum GameState

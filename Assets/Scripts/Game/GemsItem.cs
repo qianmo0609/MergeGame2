@@ -13,7 +13,7 @@ public class GemsItem : MonoBehaviour
     DirEnum dirEnum;
     [SerializeField]
     Vector2Int idx; //用于保存物体在什么位置 x表示的是行，y表示的是列
-    bool isBomb;
+    BombType isBomb;
 
     FullComponent fullComponent;
 
@@ -21,7 +21,7 @@ public class GemsItem : MonoBehaviour
     public DirEnum _DirEnum { get => dirEnum; }
     public Vector2Int Idx { get => idx; set => idx = value; }
     public int Type { get => type;}
-    public bool IsBomb { get => isBomb;}
+    public BombType IsBomb { get => isBomb; set{isBomb = value; this.OnUpdateTOBomb(value); } }
     public bool IsFull { 
         get { return isFull; } 
         set { 
@@ -39,7 +39,7 @@ public class GemsItem : MonoBehaviour
         fullComponent = new FullComponent(this.transform);
     }
 
-    public void OnInitInfo(Sprite gemIcon, int type, DirEnum dirEnum, Vector2Int idx, bool isBomb = false)
+    public void OnInitInfo(Sprite gemIcon, int type, DirEnum dirEnum, Vector2Int idx, BombType isBomb = BombType.none)
     {
         this.spriteRenderer = this.GetComponent<SpriteRenderer>();
         this.spriteRenderer.sprite = gemIcon;
@@ -65,18 +65,31 @@ public class GemsItem : MonoBehaviour
         this.RecycleSelf();
     }
 
-    public Tween TweenTOPosition(float duration = .2f,bool isDelay = false)
+    public Tween TweenTOPosition(float duration = .2f)
     {
         this.transform.DOComplete();
         currentPos = Utils.GetNextPos(this.idx.x,this.idx.y);
-        return this.transform.DOMove(currentPos, duration).SetEase(Ease.OutQuad).SetDelay(isDelay?Random.Range(.1f,.3f):0);
+        return this.transform.DOMove(currentPos, duration).SetEase(Ease.OutBounce);
+    }
+
+    void OnUpdateTOBomb(BombType bombType)
+    {
+        //无类型的直接返回
+        if (bombType == BombType.none) return;
+        //首先需要播放一个放缩动画
+        //vibrato 震动 elasticity 弹性 都不需要
+        this.transform.DOPunchScale(Vector3.one * 1.2f,.5f,0,0).SetEase(Ease.OutSine);
+        //将图片换成对应的炸弹图片
+        this.spriteRenderer.sprite = ResManager.Instance.bombSprites[((int)bombType) - 1]; 
     }
 
     public void PlayMergeEffect()
     {
-        this.transform.position = new Vector3(10000, 10000, 0);
+        if(isBomb == BombType.none) {
+            this.transform.position = new Vector3(10000, 10000, 0);
+        }
         //播放爆炸特效动画
-        //EffectManager.Instance.CreateEffectItem(this.type+1, currentPos);
+        EffectManager.Instance.CreateEffectItem(this.type+1, currentPos);
     }
 
     /// <summary>
@@ -85,9 +98,10 @@ public class GemsItem : MonoBehaviour
     /// <param name="p"></param>
     public void RecycleSelf()
     {
-        if (this.isBomb)
+        //回收炸弹时需要将类型重置为none
+        if (this.isBomb != BombType.none)
         {
-            this.BombRecycleSelf();
+            this.isBomb = BombType.none;
         }
         this.transform.parent = null;
         this.transform.position = new Vector3(10000, 10000, 0);
@@ -95,11 +109,5 @@ public class GemsItem : MonoBehaviour
         this.transform.DOKill();
         PoolManager.Instance.gemsPool.putObjToPool(this);
         this.isFull = false;
-    }
-
-    public void BombRecycleSelf()
-    {
-        this.isBomb = false;
-        this.gameObject.SetActive(true);
     }
 }
