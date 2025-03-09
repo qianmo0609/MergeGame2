@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class GameMgr : MonoSingleton<GameMgr>
@@ -18,7 +17,9 @@ public class GameMgr : MonoSingleton<GameMgr>
     List<HashSet<Vector2Int>> gemsItems; //用于存储分类后的物体
 
     List<BombItemInfo> bombItems; //存储当前的炸弹信息
-    List<MergeInfo> gemMergeInfos;
+    List<MergeInfo> gemMergeInfos; //存储消除分数信息
+
+    List<List<MergeInfo>> bombMergeInfo; //存储炸弹消除分数信息
 
     private bool isFirst; //是否是第一次执行
     ScoreList scoreList;
@@ -45,6 +46,7 @@ public class GameMgr : MonoSingleton<GameMgr>
         UIManager.Instance.GetWindow<MainUI>().Show();
         gemsItemsCollect = new GemsItem[GameCfg.row, GameCfg.col];
         gemMergeInfos = new List<MergeInfo>();
+        bombMergeInfo = new List<List<MergeInfo>>();
         bombItems = new List<BombItemInfo>();
         mapFlag = new int[GameCfg.row, GameCfg.col];
         gemsItems = new List<HashSet<Vector2Int>>();
@@ -496,6 +498,15 @@ public class GameMgr : MonoSingleton<GameMgr>
                     //非炸弹合并时执行
                     if (!isBombMerge)
                         this.CreateFlyGemItem(gemMergeInfos[i]);
+                    else
+                    {
+                        //炸弹合并消除时需要另一种方式,每颗炸弹消除的物体类型不一样，需要将消除的类型一一显示
+                        for (int x = 0; x < bombMergeInfo[i].Count; x++)
+                        {
+                            this.CreateFlyGemItem(bombMergeInfo[i][x]);
+                            yield return new WaitForSeconds(.3f);
+                        }
+                    }
                     isPlayEffectTxt = false;
                 }
                 //Debug.Log(gemsItemsCollect[item.x, item.y]);
@@ -542,6 +553,7 @@ public class GameMgr : MonoSingleton<GameMgr>
 
         //清除缓存的各类型的分数信息
         gemMergeInfos.Clear();
+        bombMergeInfo.Clear();
 
         yield return ws08;
         if (gemMergeCoroutione != null)
@@ -555,7 +567,7 @@ public class GameMgr : MonoSingleton<GameMgr>
             for (int i = 0; i < bombItems.Count; i++)
             {
                 //处理对应炸弹功能
-                bombManager.HandlerBomb(bombItems[i], gemsItemsCollect, gemsItems,bombItems);
+                bombManager.HandlerBomb(bombItems[i], gemsItemsCollect, gemsItems,bombItems,bombMergeInfo);
             }
             //清除炸弹信息
             bombItems.Clear();

@@ -295,6 +295,7 @@ MonoBehaviour:
   btnClose: {fileID: 0}
   btnStart: {fileID: 6441506158925642100}
   btnHandUp: {fileID: 4257675574582282519}
+  comboLable: {fileID: 1320682909075293725}
 --- !u!1 &586865841665977262
 GameObject:
   m_ObjectHideFlags: 0

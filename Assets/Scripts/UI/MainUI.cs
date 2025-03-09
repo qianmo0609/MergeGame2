@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+﻿using DG.Tweening;
 using UnityEngine;
 
 public class MainUI : UIBase
 {
     [SerializeField] UIButton btnStart;
     [SerializeField] UIButton btnHandUp;
+    [SerializeField] UILabel comboLable;
 
     private void Start()
     {
@@ -36,6 +35,18 @@ public class MainUI : UIBase
             btnStart.normalSprite = ConstValue.btnStartHandUpSpriteName;
             btnHandUp.normalSprite = ConstValue.btnHandUpHandUpSpriteName;
         }
+    }
+
+    private void OnShowComboLabel()
+    {
+        comboLable.gameObject.SetActive(true);
+        comboLable.transform.DOPunchScale(Vector3.one * 1.2f,.4f);
+        //comboLable.text = ;
+    }
+
+    private void OnHideComboLabel()
+    {
+        comboLable.gameObject.SetActive(false);
     }
 
     public override void Show()

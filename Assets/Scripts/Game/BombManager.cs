@@ -23,6 +23,13 @@ public struct BombItemInfo
 /// </summary>
 public class BombManager
 {
+    Dictionary<int, MergeInfo> mergeInfos; //用于加快查询物体的分数信息
+
+    public BombManager()
+    {
+        mergeInfos = new Dictionary<int, MergeInfo>();  
+    }
+
     public void SwitchBomb(int count,Vector2Int[] gemsItem, GemsItem[,] gemsItemCollection, List<BombItemInfo> bombItems)
     {
         if (count == 4)
@@ -255,27 +262,27 @@ public class BombManager
         return false;
     }
 
-    public void HandlerBomb(BombItemInfo bi, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems,List<BombItemInfo> bombItems)
+    public void HandlerBomb(BombItemInfo bi, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems,List<BombItemInfo> bombItems,List<List<MergeInfo>> bombMergeInfos)
     {
         if (bi.bombType == BombType.hor)
         {
             //横向炸弹消除
-            this.HandleHorMerge(bi.gem.Idx, gemsItemsCollect, gemsItems);
+            this.HandleHorMerge(bi.gem.Idx, gemsItemsCollect, gemsItems, bombMergeInfos);
         }
         else if (bi.bombType == BombType.ver)
         {
             //竖向炸弹消除
-            this.HandlerVerMerge(bi.gem.Idx, gemsItemsCollect, gemsItems);
+            this.HandlerVerMerge(bi.gem.Idx, gemsItemsCollect, gemsItems, bombMergeInfos);
         }
         else if (bi.bombType == BombType.super)
         {
             //超级炸弹消除
-            this.HandlerSuperMerge(bi.gem.Idx, gemsItemsCollect, gemsItems,bombItems);
+            this.HandlerSuperMerge(bi.gem.Idx, gemsItemsCollect, gemsItems,bombItems, bombMergeInfos);
         }
         else if(bi.bombType == BombType.large)
         {
             //大炸弹消除
-            this.HandlerLargeMerge(bi.gem.Idx, gemsItemsCollect, gemsItems);
+            this.HandlerLargeMerge(bi.gem.Idx, gemsItemsCollect, gemsItems, bombMergeInfos);
         }
         //将转换成炸弹的GemItem类型重置
         bi.gem.IsBomb = BombType.none;
@@ -287,11 +294,12 @@ public class BombManager
     /// <param name="row"></param>
     /// <param name="gemsItemsCollect"></param>
     /// <param name="gemsItems"></param>
-    void HandleHorMerge(Vector2Int pos,GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems)
+    void HandleHorMerge(Vector2Int pos,GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems, List<List<MergeInfo>> bombMergeInfos)
     {
         GemsItem g = null;
         //如果是横向消除则消除一行
         HashSet<Vector2Int> gems = new HashSet<Vector2Int>(GameCfg.col);
+        List<MergeInfo> mergeInfos = new List<MergeInfo>(); 
         for (int i = 0; i < GameCfg.col; i++)
         {
             g = gemsItemsCollect[pos.x, i];
@@ -310,7 +318,7 @@ public class BombManager
     /// <param name="col"></param>
     /// <param name="gemsItemsCollect"></param>
     /// <param name="gemsItems"></param>
-    void HandlerVerMerge(Vector2Int pos,GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems)
+    void HandlerVerMerge(Vector2Int pos,GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems, List<List<MergeInfo>> bombMergeInfos)
     {
         GemsItem g = null;
         //如果是纵向消除则消除一列
@@ -334,7 +342,7 @@ public class BombManager
     /// <param name="gemsItemsCollect"></param>
     /// <param name="gemsItems"></param>
     /// <param name="bombItems"></param>
-    void HandlerSuperMerge(Vector2Int pos, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems, List<BombItemInfo> bombItems)
+    void HandlerSuperMerge(Vector2Int pos, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems, List<BombItemInfo> bombItems, List<List<MergeInfo>> bombMergeInfos)
     {
         Vector2Int current;
         BombType bt = BombType.none;
@@ -393,7 +401,7 @@ public class BombManager
     /// <param name="pos"></param>
     /// <param name="gemsItemsCollect"></param>
     /// <param name="gemsItems"></param>
-    void HandlerLargeMerge(Vector2Int pos, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems)
+    void HandlerLargeMerge(Vector2Int pos, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems, List<List<MergeInfo>> bombMergeInfos)
     {
         Vector2Int current;
         HashSet<Vector2Int> gems = new HashSet<Vector2Int>();
