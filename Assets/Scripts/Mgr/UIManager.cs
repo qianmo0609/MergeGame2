@@ -24,7 +24,7 @@ public class UIManager : Singleton<UIManager>
         UIBase win;
         if (uiCollection.TryGetValue(key,out win))
         {
-            uiCollection.Remove(key);
+            win.gameObject.SetActive(true);
             return win as T;
         }
         else
@@ -43,14 +43,14 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
-    public void PutWindow<T>(UIBase windows) where T : UIBase
+    public void PutWindow(UIBase windows)
     {
-        string key = typeof(T).Name;
+        string key = windows.GetType().Name;
         UIBase win;
-        if (!uiCollection.TryGetValue(key, out win))
+        if (uiCollection.TryGetValue(key, out win))
         {
             win.transform.parent = null;
-            uiCollection.Add(key, windows);
+            win.gameObject.SetActive(false);
         }
         else
         {

@@ -22,6 +22,7 @@ public class ResManager : Singleton<ResManager>
     public Material customSpriteMat;
     public Dictionary<string, UIBase> uiWinsPrefab;
     public Sprite[] levelSprite;
+
     public override void OnInit()
     {
         base.OnInit();
@@ -33,20 +34,17 @@ public class ResManager : Singleton<ResManager>
         slotBGPrefab = Resources.Load<GameObject>(ConstValue.slotBGPath);
         slotPrefab = Resources.Load<GameObject>(ConstValue.slotPath);
         slotClaybankPrefab = Resources.Load<GameObject>(ConstValue.slotClaybankPath);
+        effectTextItems = Resources.Load<EffectTextItem>(ConstValue.effectItemPath);
+        scoreListItem = Resources.Load<ScoreListItem>(ConstValue.scoreListItemPath);
         this.OnLoadUIWindows();
         this.OnLoadSprite();
         this.OnLoadBombSprite();
         this.OnLoadEffct();
+        this.OnLoadComboSprites();
 
-        //effectTextItems = Resources.Load<EffectTextItem>($"Res/Prefabs/EffectText");
-        //wall = Resources.Load<GameObject>("Res/Prefabs/Wall");
-        //buttomWall = Resources.Load<GameObject>("Res/Prefabs/ButtomWall");
         //effectBomb = Resources.Load<GameObject>("Res/Prefabs/Effect/elem_bomb_0");
-        //scoreListItem = Resources.Load<ScoreListItem>("Res/Prefabs/ScoreItem");
         //customSpriteMat = Resources.Load<Material>("Res/Mat/CustomSpriteClip");
 
-
-        //this.OnLoadComboSprites();
         //this.OnLoadLevelSprite();
     }
 

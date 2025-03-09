@@ -1,15 +1,16 @@
+using System;
 using UnityEngine;
 
 public class Utils 
 {
     public static int RandomIntVale(int minValue,int maxValue)
     {
-        return Random.Range(minValue,maxValue);
+        return UnityEngine.Random.Range(minValue,maxValue);
     }
 
     public static float RandomFloatVale(float minValue, float maxValue)
     {
-        return Random.Range(minValue, maxValue);
+        return UnityEngine.Random.Range(minValue, maxValue);
     }
 
     public static Vector3 GetGemItemPos(int row , int col)
@@ -67,6 +68,11 @@ public class Utils
         return 0;
     }
 
+    public static int randomAGemType(int min,int max)
+    {
+        return 1<< UnityEngine.Random.Range(min,max+1);
+    }
+
     public static bool IsCorner(int x, int y, int maxX, int maxY)
     {
         // 利用位运算优化条件判断
@@ -81,4 +87,19 @@ public class Utils
         GameCfg.claybankSlotIdxs.TryGetValue(key, out isCreateSlot);
         return isCreateSlot;
     }
+
+    public static int getBombIdx(BombType bombType)
+    {
+        return Array.IndexOf(enumArray,bombType);
+    }
+
+    // 四方向向量：上、下、左、右
+    public static Vector2Int[] directions = {
+        new Vector2Int(-1,0), //上
+        new Vector2Int(1,0), //下
+        new Vector2Int(0,-1), //左 
+        new Vector2Int(0,1) //右
+    };
+
+    public static Array enumArray = Enum.GetValues(typeof(BombType));
 }

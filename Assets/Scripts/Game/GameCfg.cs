@@ -18,7 +18,14 @@ public class GameCfg
     { new Vector2Int(7,8),true},{new Vector2Int(8,7),true},{new Vector2Int(8,8),true }  //右下
     };
 
+    public static float[] uiYStartPos = new float[] { 180, 0, 0 };
+    public static float uiYInterval = 60f;
+
     public static bool isHandUp = false; //是否挂起
+
+    public static float scoreListItemInterval = .5f;
+    public static int scoreListItemMaxNum = 4;
+
 
     public static int totalScore = 0;
     public static int comboNum = 0;
@@ -39,14 +46,6 @@ public class GameCfg
     public static int[] buttomWallNum = new int[3] { 16, 19, 21 };
 
     public static Vector3[,] wall = new Vector3[,] { { new Vector3(-1.669f, -2.057f, 0), new Vector3(1.709f, -2.057f, 0) }, { new Vector3(-1.669f, -2.057f, 0), new Vector3(2.36f, -2.057f, 0) }, { new Vector3(-2.33f, -2.057f, 0),new Vector3(2.36f, -2.057f, 0)} };
-
-    public static float uiYInterval = 75f;
-
-    public static float[] uiYStartPos = new float[] { 0, 0, 0 };
-
-    public static float scoreListItemInterval = .5f;
-
-    public static int scoreListItemMaxNum = 6;
 
     public static Vector3[] scoreListStartPoss = new Vector3[] { new Vector3(0, -0.154f,0), new Vector3(0, 0, 0) , new Vector3(0, 0, 0) };
 
@@ -90,6 +89,8 @@ public static class ConstValue
     public static string slotPath = "Res/Prefabs/Slot";
     public static string slotClaybankPath = "Res/Prefabs/SlotClaybank";
     public static string slotBGPath = "Res/Prefabs/BG";
+    public static string effectItemPath = "Res/Prefabs/EffectText";
+    public static string scoreListItemPath = "Res/Prefabs/ScoreListItem";
     public static string gemItemPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_";
     public static string largeBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_97"; //大炸弹
     public static string verBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_94"; //竖向炸弹

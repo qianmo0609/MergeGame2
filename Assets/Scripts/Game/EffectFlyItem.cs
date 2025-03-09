@@ -11,7 +11,7 @@ public class EffectFlyItem : MonoBehaviour,IFlyComponent
     bool isCanMove = false;
 
     // 物体移动的总时间
-    public float duration = .5f;
+    public float duration = .8f;
     // 记录开始移动的时间
     private float startTime;
 
@@ -24,13 +24,13 @@ public class EffectFlyItem : MonoBehaviour,IFlyComponent
         Vector3 pos = Utils.GetNextPos(mergeInfo.row, mergeInfo.col);
         SpriteRenderer sp = this.GetComponent<SpriteRenderer>();
         sp.sprite = sprite;
-        sp.sortingOrder = 3;
+        sp.sortingOrder = 4;
         this.transform.position = pos;
         this.transform.localScale = 0.6856104f * Vector3.one;
         this.mergeInfo = mergeInfo;
         this.cb = cb;
         p0 = pos;
-        p1 = new Vector3(pos.x + tartPos.x / 2, pos.y + GameCfg.flyBezierOffsetY, 0);
+        p1 = new Vector3(pos.x + 1.2f, tartPos.y, 0);
         p2 = tartPos;
         this.isCanMove = isMoveAtOnce;
         // 记录开始移动的时间

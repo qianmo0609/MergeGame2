@@ -11,9 +11,11 @@ public class GemsItem : MonoBehaviour
     int gemType;
     int type;
     DirEnum dirEnum;
-    [SerializeField]
     Vector2Int idx; //用于保存物体在什么位置 x表示的是行，y表示的是列
     BombType isBomb;
+    bool isFull = false;
+    Vector3 currentPos;
+    bool isRemove = false; //物体是否已经被移除的标志
 
     FullComponent fullComponent;
 
@@ -30,9 +32,7 @@ public class GemsItem : MonoBehaviour
         } 
     }
 
-    Vector3 currentPos;
-
-    bool isFull = false;
+    public bool IsRemove { get => isRemove;}
 
     private void Start()
     {
@@ -80,13 +80,18 @@ public class GemsItem : MonoBehaviour
         //vibrato 震动 elasticity 弹性 都不需要
         this.transform.DOPunchScale(Vector3.one * 1.2f,.5f,0,0).SetEase(Ease.OutSine);
         //将图片换成对应的炸弹图片
-        this.spriteRenderer.sprite = ResManager.Instance.bombSprites[((int)bombType) - 1]; 
+        int idx = Utils.getBombIdx(bombType);
+        if (idx != -1)
+        {
+            this.spriteRenderer.sprite = ResManager.Instance.bombSprites[idx-1];
+        }
     }
 
     public void PlayMergeEffect()
     {
         if(isBomb == BombType.none) {
             this.transform.position = new Vector3(10000, 10000, 0);
+            isRemove = true;
         }
         //播放爆炸特效动画
         EffectManager.Instance.CreateEffectItem(this.type+1, currentPos);
@@ -107,7 +112,8 @@ public class GemsItem : MonoBehaviour
         this.transform.position = new Vector3(10000, 10000, 0);
         this.idx = Vector2Int.down;
         this.transform.DOKill();
-        PoolManager.Instance.gemsPool.putObjToPool(this);
         this.isFull = false;
+        this.isRemove = false;
+        PoolManager.Instance.gemsPool.putObjToPool(this);
     }
 }

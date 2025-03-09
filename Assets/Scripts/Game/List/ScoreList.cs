@@ -1,6 +1,4 @@
 using DG.Tweening;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,14 +16,10 @@ public class ScoreList
     {
         this.ListObj = obj;
         this.OnReset();
-#if UNITY_EDITOR
-        this.TestListDisplay();
-#endif
     }
 
     public void OnReset()
     {
-        maxDisplayNum = GameCfg.scoreListItemMaxNum - 1;
         maxNum = GameCfg.scoreListItemMaxNum;
         scoreListCollection = new List<ScoreListItem>(maxNum);
         currentPos = GameCfg.scoreListStartPoss[GameCfg.level - 1];
@@ -37,79 +31,57 @@ public class ScoreList
         //生成一个飞行物体，飞行完成后，生成一个Gem
         EffectFlyItem ef = CreateFactory.Instance.CreateGameObj<EffectFlyItem>(GameObjEunm.effectFlyItem);
         this.MoveItem();
-        ef.OnInitInfo(mergeInfo,this.ListObj.TransformPoint(this.GetNextItemPos()), ResManager.Instance.gemsSprites[mergeInfo.type], this.GetCb());
+        ef.OnInitInfo(mergeInfo,this.ListObj.TransformPoint(Vector3.zero), ResManager.Instance.gemsSprites[mergeInfo.type], this.FlyCB);
     }
 
-#if UNITY_EDITOR
-    //测试列表物体显示
-    void TestListDisplay()
+    void FlyCB(MergeInfo mergeInfo)
     {
-        //new GameObject().AddComponent<Test>().StartCoroutine(Display());
-    }
-
-    IEnumerator Display()
-    {
-        while (scoreListCollection.Count < maxNum)
+        if (scoreListCollection.Count < maxNum)
         {
-            //this.DisplayGem();
-            this.AddItem(new MergeInfo{type = 1,score = 100,num = 1,row = 1,col = 1 });
-            yield return new WaitForSeconds(1);
+            this.DisplayGem(mergeInfo);
         }
-        ClearCollection();
+        else
+        {
+            this.MoveButtomItem(mergeInfo);
+        }
     }
-#endif
 
+    /// <summary>
+    /// 增加Item
+    /// </summary>
+    /// <param name="mergeInfo"></param>
     public void DisplayGem(MergeInfo mergeInfo)
     {
         //增加显示的Item
         ScoreListItem sl = CreateFactory.Instance.CreateGameObj<ScoreListItem>(GameObjEunm.scoreListItem);
         sl.OnSetInfo(ResManager.Instance.gemsSprites[mergeInfo.type], mergeInfo.num);
         sl.transform.parent = ListObj;
-        sl.transform.localPosition = currentPos;
+        sl.transform.localPosition = Vector3.zero;
         scoreListCollection.Add(sl);
-        if (scoreListCollection.Count < maxNum)
-        {
-            currentPos += Vector3.up * GameCfg.scoreListItemInterval;
-        }
     }
 
+    /// <summary>
+    /// 移动Item
+    /// </summary>
     void MoveItem()
     {
-        if (scoreListCollection.Count > maxDisplayNum)
+        float y = 0;
+        for (int i = 0; i < scoreListCollection.Count; i++)
         {
-            float y;
-            #region 使用Sequence方式
-            //Sequence sequence = DOTween.Sequence();
-            ////如果列表中已经大于6个，则列表Item下移， 最底部的Item移动到上部显示
-            //for (int i = 0; i < scoreListCollection.Count; i++)
-            //{
-            //    y = GameCfg.scoreListStartPoss[GameCfg.level - 1].y + (i - 1) * GameCfg.scoreListItemInterval;
-            //    sequence.Join(scoreListCollection[i].transform.DOLocalMoveY(y, 1.2f));
-            //}
-            //for (int i = 0; i < scoreListCollection.Count; i++)
-            //{
-            //    y = currentPos.y - GameCfg.scoreListItemInterval * (GameCfg.scoreListItemMaxNum - this.MappintIdx(i) + 1);
-            //    sequence.Join(scoreListCollection[i].transform.DOLocalMoveY(y, .3f));
-            //}
-            //sequence.Play();//.OnComplete(this.MoveButtomItem);
-            #endregion
-            for (int i = 0; i < scoreListCollection.Count; i++)
+            y = 0 - GameCfg.scoreListItemInterval * (scoreListCollection.Count - this.MappintIdx(i));
+            scoreListCollection[i].transform.DOLocalMoveY(y, .2f);
+            if(scoreListCollection[i].transform.localPosition.y <= -1.5f)
             {
-                y = currentPos.y - GameCfg.scoreListItemInterval * (GameCfg.scoreListItemMaxNum - this.MappintIdx(i));
-                scoreListCollection[i].transform.DOLocalMoveY(y, .2f);
+                scoreListCollection[i].gameObject.SetActive(false);
             }
         }
-    }
-
-    Action<MergeInfo> GetCb()
-    {
-         return scoreListCollection.Count < maxNum?this.DisplayGem:MoveButtomItem;
     }
 
     public void MoveButtomItem(MergeInfo mergeInfo)
     {
         ScoreListItem sl = scoreListCollection[currentButtomIdx];
-        sl.transform.localPosition = currentPos;
+        sl.gameObject.SetActive(true);
+        sl.transform.localPosition = Vector3.zero;
         sl.OnSetInfo(ResManager.Instance.gemsSprites[mergeInfo.type], mergeInfo.num);
         this.currentButtomIdx++;
         this.currentButtomIdx %= GameCfg.scoreListItemMaxNum;
@@ -138,12 +110,6 @@ public class ScoreList
             ScoreListItem sl = scoreListCollection[i];
             sl.SetItemState(false,GameCfg.spriteRange);
             sl.IsFull = true;
-            //Vector3 tarPos = sl.transform.position + new Vector3(Utils.RandomFloatVale(-1.0f, 1f), Utils.RandomFloatVale(0, 1.0f), 0);
-            //sl.transform.DOMove(tarPos, 0.3f).SetEase(Ease.OutSine).OnComplete(() =>
-            //{
-            //    //宝石下落
-            //    sl.transform.DOMoveY(-10, Utils.RandomFloatVale(0.1f, 0.8f)).SetEase(Ease.InExpo).OnComplete(() => { sl.OnRecycleSelf(); });
-            //});
         }
         scoreListCollection.Clear();
     }

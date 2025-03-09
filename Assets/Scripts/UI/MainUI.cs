@@ -46,6 +46,5 @@ public class MainUI : UIBase
     public override void Hide()
     {
         base.Hide();
-        UIManager.Instance.PutWindow<MainUI>(this);
     }
 }
