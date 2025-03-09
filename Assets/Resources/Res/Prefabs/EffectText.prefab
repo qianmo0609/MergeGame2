@@ -73,8 +73,8 @@ MonoBehaviour:
   keepAspectRatio: 0
   aspectRatio: 3.3333333
   keepCrispWhenShrunk: 1
-  mTrueTypeFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-  mFont: {fileID: 0}
+  mTrueTypeFont: {fileID: 0}
+  mFont: {fileID: 8906167204437317573, guid: d120213131a429b4fa93f8405db78a5f, type: 3}
   mText: x169
   mFontSize: 35
   mFontStyle: 0
@@ -116,4 +116,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   label: {fileID: 4246910219860304433}
-  canvasGroup: {fileID: 0}
