@@ -41,13 +41,13 @@ public class BombManager
             {
                 //如果行相等，则表明是横向的四个
                 //如果是横向消除，则生成竖向炸弹
-                Debug.Log("竖向消除四个炸弹");
+                //Debug.Log("竖向消除四个炸弹");
                 gemsItemCollection[pos.x,pos.y].IsBomb = BombType.ver;
                 isVer = true;
             }
             else
             {
-                Debug.Log("横向消除四个炸弹");
+                //Debug.Log("横向消除四个炸弹");
                 gemsItemCollection[pos.x, pos.y].IsBomb = BombType.hor;
                 isVer = false;
             }
@@ -60,7 +60,7 @@ public class BombManager
             if (this.IsLine5(gemsItem))
             {
                 //生成超级炸弹
-                Debug.Log("生成超级炸弹");
+                //Debug.Log("生成超级炸弹");
                 pos = gemsItem[count / 2];
                 gemsItemCollection[pos.x, pos.y].IsBomb = BombType.super;
                 bombItems.Add(new BombItemInfo { gem = gemsItemCollection[pos.x, pos.y], bombType = BombType.super });
@@ -68,7 +68,7 @@ public class BombManager
             else if(this.IsTShape(gemsItem) || this.IsLShape(gemsItem) || this.IsCrossShape(gemsItem))
             {
                 //生成大炸弹
-                Debug.Log("生成大炸弹");
+                //Debug.Log("生成大炸弹");
                 pos = gemsItem[count / 2];
                 gemsItemCollection[pos.x, pos.y].IsBomb = BombType.large;
                 bombItems.Add(new BombItemInfo { gem = gemsItemCollection[pos.x, pos.y], bombType = BombType.large });
@@ -217,8 +217,8 @@ public class BombManager
     public bool IsLShape(Vector2Int[] gemsItem)
     {
         /*
-            ￥         ￥       
-            ￥         ￥
+            ￥          ￥       
+            ￥          ￥
             ￥￥￥  ￥￥￥   ....
        */
         //行上列上可能不止三个点
@@ -355,7 +355,7 @@ public class BombManager
             if(g!= null && (g.IsBomb & (BombType.none | BombType.hor)) == 0)
             {
                 gems.Add(g.Idx);
-                this.AddMergeInfoToDic(g);
+                this.AddMergeInfoToDic(pos,g);
             }
         }
         gems.Add(pos);
@@ -380,7 +380,7 @@ public class BombManager
             if (g != null && (g.IsBomb & (BombType.none|BombType.ver)) == 0)
             {
                 gems.Add(g.Idx);
-                this.AddMergeInfoToDic(g);
+                this.AddMergeInfoToDic(pos,g);
             }
         }
         gems.Add(pos);
@@ -416,33 +416,40 @@ public class BombManager
         {
             //如果有超级炸弹
             //将所有格子中没被销毁的物体加入到gemsItems中
-            this.FindNotHaveDestroyItem(gemsItemsCollect, gems);
+            this.FindNotHaveDestroyItem(pos,gemsItemsCollect, gems);
         }
         else if(bt != BombType.none)
         {
             //如果有其他炸弹，则
             //随机一个类型
             //将此类型的所有物体加入到gemsItems中
-            this.FindTarTypeItem(Utils.randomAGemType(0, 5), gemsItemsCollect, gems);
+            this.FindTarTypeItem(pos,Utils.randomAGemType(0, 5), gemsItemsCollect, gems);
         }
         else
         {
             //如果周围四个格子没有其他炸弹
             //随机炸掉哪一格的宝石,随机取此格子的一个方向,寻找一个没有被移除的物体作为要移除的物体
-            current = pos + Utils.directions[Random.Range(0, 4)];
-            while ((current.x < 0 || current.x >= GameCfg.row) && (current.y < 0 || current.y >= GameCfg.col) )
+
+            int idx = -1;
+            for (int i = 0; i < 4; i++)
             {
+                idx = Random.Range(0, 4);
                 current = pos + Utils.directions[Random.Range(0, 4)];
+                if((current.x < 0 || current.x >= GameCfg.row) && (current.y < 0 || current.y >= GameCfg.col))
+                {
+                    g = gemsItemsCollect[current.x, current.y];
+                    if (g != null && !g.IsRemove)
+                    {
+                        break;
+                    }
+                }
             }
-            g = gemsItemsCollect[current.x, current.y];
-            while (g!= null && g.IsRemove)
+            if(idx != -1)
             {
-                current = pos + Utils.directions[Random.Range(0, 4)];
-                g = gemsItemsCollect[current.x, current.y];
+                //取这个格子中物体的GemType
+                //获取这个类型的所有物体，加入到gesItems中
+                this.FindTarTypeItem(pos, g.GemType, gemsItemsCollect, gems);
             }
-            //取这个格子中物体的GemType
-            //获取这个类型的所有物体，加入到gesItems中
-            this.FindTarTypeItem(g.GemType, gemsItemsCollect, gems);
         }
         gems.Add(pos);
         gemsItems.Add(gems);
@@ -473,7 +480,7 @@ public class BombManager
             {
                 //如果当前物体不是炸弹才添加到消除物体
                 gems.Add(g.Idx);
-                this.AddMergeInfoToDic(g);
+                this.AddMergeInfoToDic(pos,g);
             }
         }
         gems.Add(pos);
@@ -487,7 +494,7 @@ public class BombManager
     /// <param name="gemType">指定的类型</param>
     /// <param name="gemsItemsCollect">存储物体的数组</param>
     /// /// <param name="gemsItems">要消除物体的集合</param>
-    void FindTarTypeItem(int gemType, GemsItem[,] gemsItemsCollect, HashSet<Vector2Int> gems)
+    void FindTarTypeItem(Vector2Int pos,int gemType, GemsItem[,] gemsItemsCollect, HashSet<Vector2Int> gems)
     {
         GemsItem g = null;
         for (int i = 0; i < GameCfg.row; i++)
@@ -499,7 +506,7 @@ public class BombManager
                 if (g != null && (g.GemType & gemType) != 0)
                 {
                     gems.Add(g.Idx);
-                    this.AddMergeInfoToDic(g);
+                    this.AddMergeInfoToDic(pos,g);
                 }
             }
         }
@@ -510,7 +517,7 @@ public class BombManager
     /// </summary>
     /// <param name="gemsItemsCollect"></param>
     /// <param name="gemsItems"></param>
-    void FindNotHaveDestroyItem(GemsItem[,] gemsItemsCollect, HashSet<Vector2Int> gems)
+    void FindNotHaveDestroyItem(Vector2Int pos,GemsItem[,] gemsItemsCollect, HashSet<Vector2Int> gems)
     {
         GemsItem g = null;
         for (int i = 0; i < GameCfg.row; i++)
@@ -522,18 +529,18 @@ public class BombManager
                 if (g!= null && !g.IsRemove)
                 {
                     gems.Add(g.Idx);
-                    this.AddMergeInfoToDic(g);
+                    this.AddMergeInfoToDic(pos,g);
                 }
             }
         }
     }
 
-    void AddMergeInfoToDic(GemsItem g)
+    void AddMergeInfoToDic(Vector2Int pos,GemsItem g)
     {
         MergeInfo mergeInfo;
         if (!mergeInfosDic.ContainsKey(g.Type))
         {
-            mergeInfo = new MergeInfo { type = g.Type, num = 1, row = g.Idx.x, col = g.Idx.y };
+            mergeInfo = new MergeInfo { type = g.Type, num = 1, row = pos.x, col = pos.y };
             mergeInfosDic.Add(g.Type, mergeInfo);
         }
         else

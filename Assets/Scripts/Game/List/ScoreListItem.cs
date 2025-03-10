@@ -59,7 +59,6 @@ public class ScoreListItem : MonoBehaviour
         int shiValue = num / 10;
         if (shiValue > 0)
         {
-            Debug.Log($"{shiValue},{num}");
             //如果是两位数
             scoreShi.gameObject.SetActive(true);
             pos.x = GameCfg.scoreListNumDoubleX;
