@@ -108,13 +108,14 @@ public class GemsItem : MonoBehaviour
         if (this.isBomb != BombType.none)
         {
             this.isBomb = BombType.none;
+            this.transform.position = new Vector3(10000, 10000, 0);
         }
         this.transform.parent = null;
-        this.transform.position = new Vector3(10000, 10000, 0);
         this.idx = Vector2Int.down;
         this.transform.DOKill();
         this.isFull = false;
         this.isRemove = false;
+        this.spriteRenderer.sortingOrder = 4;
         PoolManager.Instance.gemsPool.putObjToPool(this);
     }
 }

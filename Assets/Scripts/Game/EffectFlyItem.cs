@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EffectFlyItem : MonoBehaviour,IFlyComponent
 {
+    SpriteRenderer spriteRenderer;
+
     Action<MergeInfo> cb;
 
     Vector3 p0, p1, p2;
@@ -19,12 +21,16 @@ public class EffectFlyItem : MonoBehaviour,IFlyComponent
 
     public bool IsCanMove { get => isCanMove; set => isCanMove = value; }
 
+    void Awake()
+    {
+        spriteRenderer = this.GetComponent<SpriteRenderer>(); ;
+    }
+
     public virtual void OnInitInfo(MergeInfo mergeInfo, Vector3 tartPos,Sprite sprite,Action<MergeInfo> cb,bool isMoveAtOnce = true)
     {
         Vector3 pos = Utils.GetNextPos(mergeInfo.row, mergeInfo.col);
-        SpriteRenderer sp = this.GetComponent<SpriteRenderer>();
-        sp.sprite = sprite;
-        sp.sortingOrder = 4;
+        spriteRenderer.sprite = sprite;
+        spriteRenderer.sortingOrder = 8;
         this.transform.position = pos;
         this.transform.localScale = 0.6856104f * Vector3.one;
         this.mergeInfo = mergeInfo;

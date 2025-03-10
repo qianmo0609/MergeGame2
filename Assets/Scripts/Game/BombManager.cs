@@ -4,11 +4,11 @@ using UnityEngine;
 
 public enum BombType
 {
-    none = 0,
-    hor = 2,
-    ver = 4,
-    super = 8,
-    large = 16,
+    none = 2,
+    hor = 4,
+    ver = 8,
+    super = 16,
+    large = 32,
 }
 
 public struct BombItemInfo
@@ -352,7 +352,7 @@ public class BombManager
         for (int i = 0; i < GameCfg.col; i++)
         {
             g = gemsItemsCollect[pos.x, i];
-            if(g!= null && (g.IsBomb & (BombType.none | BombType.hor)) == 0)
+            if(g!= null && (g.IsBomb & (BombType.none | BombType.hor)) != 0)
             {
                 gems.Add(g.Idx);
                 this.AddMergeInfoToDic(pos,g);
@@ -377,7 +377,7 @@ public class BombManager
         for (int i = 0; i < GameCfg.row; i++)
         {
             g = gemsItemsCollect[i, pos.y];
-            if (g != null && (g.IsBomb & (BombType.none|BombType.ver)) == 0)
+            if (g != null && (g.IsBomb & (BombType.none|BombType.ver)) != 0)
             {
                 gems.Add(g.Idx);
                 this.AddMergeInfoToDic(pos,g);
