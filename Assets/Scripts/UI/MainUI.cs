@@ -46,7 +46,7 @@ public class MainUI : UIBase
         comboLable.transform.DOComplete();
         comboLable.gameObject.SetActive(true);
         comboSprite.gameObject.SetActive(true);
-        comboLable.transform.DOPunchScale(Vector3.one * 1.2f,.4f);
+        comboLable.transform.DOPunchScale(Vector3.one * 2f,.4f,vibrato:0, elasticity:0);
         comboLable.text = GameCfg.comboNum.ToString();
     }
 

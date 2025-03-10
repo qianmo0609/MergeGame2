@@ -102,7 +102,7 @@ public class GameMgr : MonoSingleton<GameMgr>
                 gemsItemsCollect[j, i] = gemItem;
             }
         }
-        yield return ws02;
+        yield return ws05;
         //生成完宝石开始检测
         DetectMergeGems();
 
@@ -141,7 +141,7 @@ public class GameMgr : MonoSingleton<GameMgr>
             int spriteIdx = Utils.getGemsIdx(Utils.RandomIntVale(0, 10001));
             gemItem.OnInitInfo(ResManager.Instance.gemsSprites[spriteIdx], spriteIdx, dir, idx,BombType.none);
         }
-        gemItem.TweenTOPosition();
+        gemItem.TweenTOPosition(isDelay:true);
         return gemItem;
     }
 
@@ -292,8 +292,6 @@ public class GameMgr : MonoSingleton<GameMgr>
                 g.IsFull = true;
             }
         }
-        //TODO:清空分数显示
-
         //掉落完成之后要清除这部分宝石
         System.Array.Clear(gemsItemsCollect, 0, gemsItemsCollect.Length);
         //下落完成后再生成宝石
@@ -535,6 +533,7 @@ public class GameMgr : MonoSingleton<GameMgr>
                     g = gemsItemsCollect[item.x, item.y];
                     if (g != null && g.IsBomb == BombType.none)
                     {
+                        yield return new WaitForSeconds(.01f);
                         MergeGemAndMove(g.Idx.x, g.Idx.y);
                         g.RecycleSelf();
                     }
@@ -547,6 +546,7 @@ public class GameMgr : MonoSingleton<GameMgr>
                     g = gemsItemsCollect[item.x, item.y];
                     if (g != null && g.IsBomb == BombType.none)
                     {
+                        yield return new WaitForSeconds(.01f);
                         MergeGemAndMove(g.Idx.x, g.Idx.y);
                         g.RecycleSelf();
                     }

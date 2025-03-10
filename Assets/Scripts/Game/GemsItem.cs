@@ -34,14 +34,14 @@ public class GemsItem : MonoBehaviour
 
     public bool IsRemove { get => isRemove;}
 
-    private void Start()
+    private void Awake()
     {
         fullComponent = new FullComponent(this.transform);
+        this.spriteRenderer = this.GetComponent<SpriteRenderer>();
     }
 
     public void OnInitInfo(Sprite gemIcon, int type, DirEnum dirEnum, Vector2Int idx, BombType isBomb = BombType.none)
     {
-        this.spriteRenderer = this.GetComponent<SpriteRenderer>();
         this.spriteRenderer.sprite = gemIcon;
         this.spriteRenderer.sortingOrder = 4;
         this.gemType = 1 << type;
@@ -65,20 +65,21 @@ public class GemsItem : MonoBehaviour
         this.RecycleSelf();
     }
 
-    public Tween TweenTOPosition(float duration = .2f)
+    public Tween TweenTOPosition(float duration = .2f,bool isDelay = false)
     {
         this.transform.DOComplete();
         currentPos = Utils.GetNextPos(this.idx.x,this.idx.y);
-        return this.transform.DOMove(currentPos, duration).SetEase(Ease.OutBounce);
+        return this.transform.DOMove(currentPos, duration).SetEase(Ease.OutBounce).SetDelay(isDelay?Random.Range(.1f,.3f):0);
     }
 
     void OnUpdateTOBomb(BombType bombType)
     {
         //无类型的直接返回
         if (bombType == BombType.none) return;
+        this.spriteRenderer.sortingOrder = 6;
         //首先需要播放一个放缩动画
         //vibrato 震动 elasticity 弹性 都不需要
-        this.transform.DOPunchScale(Vector3.one * 1.2f,.5f,0,0).SetEase(Ease.OutSine);
+        this.transform.DOPunchScale(Vector3.one * .3f,.8f,0,0).SetEase(Ease.OutSine);
         //将图片换成对应的炸弹图片
         int idx = Utils.getBombIdx(bombType);
         if (idx != -1)

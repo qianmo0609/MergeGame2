@@ -11,7 +11,7 @@ public class EffectFlyItem : MonoBehaviour,IFlyComponent
     bool isCanMove = false;
 
     // 物体移动的总时间
-    public float duration = .8f;
+    public float duration = .5f;
     // 记录开始移动的时间
     private float startTime;
 
@@ -30,7 +30,7 @@ public class EffectFlyItem : MonoBehaviour,IFlyComponent
         this.mergeInfo = mergeInfo;
         this.cb = cb;
         p0 = pos;
-        p1 = new Vector3(pos.x + 1.2f, tartPos.y, 0);
+        p1 = pos.y <= tartPos.y ? new Vector3((pos.x + tartPos.x) / 2, tartPos.y, 0) : new Vector3((pos.x + tartPos.x) / 2, pos.y, 0);
         p2 = tartPos;
         this.isCanMove = isMoveAtOnce;
         // 记录开始移动的时间
