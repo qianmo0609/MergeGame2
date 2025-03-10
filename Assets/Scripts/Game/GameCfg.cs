@@ -27,12 +27,11 @@ public class GameCfg
     public static int scoreListItemMaxNum = 4;
 
     public static int comboNum = 0;
+    public static bool isEnableBtnStart = false;
 
    
     public static int totalScore = 0;
    
-    public static bool isEnableBtnStart = false;
-
     public static Vector2Int[] gameLayout = new Vector2Int[3] { new Vector2Int(4, 4), new Vector2Int(5, 5), new Vector2Int(6, 6) };
 
     public static int[] gridPerRow = new int[3] { 4, 5, 6 };

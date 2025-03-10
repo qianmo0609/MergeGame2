@@ -14,6 +14,7 @@ public class MainUI : UIBase
         btnHandUp.onClick.Add(new EventDelegate(OnHandUpEvent));
         EventCenter.Instance.RegisterEvent(EventNum.ShowComboLabel,this.OnShowComboLabel);
         EventCenter.Instance.RegisterEvent(EventNum.HideComboLabel,this.OnHideComboLabel);
+        EventCenter.Instance.RegisterEvent(EventNum.EnableOrDisableBtnStartEvent, this.EnableOrDisableStartBtn);
     }
 
     private void OnStartEvent()
@@ -53,6 +54,13 @@ public class MainUI : UIBase
     {
         comboLable.gameObject.SetActive(false);
         comboSprite.gameObject.SetActive(false);
+    }
+
+    void EnableOrDisableStartBtn()
+    {
+        if (GameCfg.isHandUp) return;
+        this.btnStart.enabled = GameCfg.isEnableBtnStart;
+        this.btnStart.defaultColor = GameCfg.isEnableBtnStart ? Color.white : Color.gray;
     }
 
     public override void Show()

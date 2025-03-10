@@ -163,6 +163,8 @@ public class GameMgr : MonoSingleton<GameMgr>
             EventCenter.Instance.ExcuteEvent(EventNum.HideComboLabel);
             GameCfg.comboNum = 0;
         }
+        GameCfg.isEnableBtnStart = false;
+        EventCenter.Instance.ExcuteEvent(EventNum.EnableOrDisableBtnStartEvent);
     }
 
 #if UNITY_EDITOR
@@ -327,6 +329,8 @@ public class GameMgr : MonoSingleton<GameMgr>
                 //如果没有检测到可以合并的宝石，则全部宝石下落，重新生成所有宝石
                 StartRandomFull();
             }
+            GameCfg.isEnableBtnStart = true;
+            EventCenter.Instance.ExcuteEvent(EventNum.EnableOrDisableBtnStartEvent);
         }
     }
 
