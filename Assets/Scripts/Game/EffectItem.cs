@@ -26,6 +26,7 @@ public class EffectItem : MonoBehaviour
 
     protected virtual void TOPool()
     {
-        PoolManager.Instance.EffectItemDic[id].putObjToPool(this);
+        //PoolManager.Instance.EffectItemDic[id].putObjToPool(this);
+        ResManager.Instance.PutObjToPool<EffectItem>(GameObjEunm.effectItem,this,id);
     }
 }

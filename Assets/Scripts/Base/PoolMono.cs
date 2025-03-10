@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using UnityEngine;
 
-public class Pool<T> where T : class
+public class PoolMono<T> where T : MonoBehaviour
 {
     Stack<T> gameObjs;
 
     int maxCapacity = 1000;
 
-    public Pool(int capacity = 1000)
+    public PoolMono(int capacity = 1000)
     {
         gameObjs = new Stack<T>(capacity);
     }
@@ -18,7 +19,7 @@ public class Pool<T> where T : class
 #if UNITY_EDITOR
             //Debug.Log("当前池中没有对象");
 #endif      
-            return ResManager.Instance.InstantiateObj<T>(type);
+            return ResManager.Instance.InstantiateMonoObj<T>(type,id);
         }
         return gameObjs.Pop();
     }

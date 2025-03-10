@@ -12,7 +12,6 @@ public class GameStart : MonoBehaviour
         PoolManager.Instance.OnInit();
         ResManager.Instance.OnInit();
         //LocalData.Instance.OnInit();
-        CreateFactory.Instance.OnInit();
         UIManager.Instance.OnInit();
         GameMgr.Instance.OnInit();
         Instantiate(curveManager);

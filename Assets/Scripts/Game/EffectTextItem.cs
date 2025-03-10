@@ -24,6 +24,7 @@ public class EffectTextItem : MonoBehaviour
     {
         this.transform.parent = null;
         this.transform.position = new Vector3(10000, 10000, 0);
-        PoolManager.Instance.EffectTextPool.putObjToPool(this);
+        //PoolManager.Instance.EffectTextPool.putObjToPool(this);
+        ResManager.Instance.PutObjToPool<EffectTextItem>(GameObjEunm.effectTextItem,this);
     }
 }

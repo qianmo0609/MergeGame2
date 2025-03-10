@@ -6,6 +6,7 @@ public class BombEffctItem : EffectItem
 {
     protected override void TOPool()
     {
-        PoolManager.Instance.BombEffctPool.putObjToPool(this);
+        //PoolManager.Instance.BombEffctPool.putObjToPool(this);
+        ResManager.Instance.PutObjToPool<BombEffctItem>(GameObjEunm.bombEffct, this);
     }
 }

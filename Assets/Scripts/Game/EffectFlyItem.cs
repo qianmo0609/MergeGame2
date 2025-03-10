@@ -79,6 +79,7 @@ public class EffectFlyItem : MonoBehaviour,IFlyComponent
     public virtual void RecycleSelf()
     {
         this.transform.position = new Vector3(10000, 10000, 0);
-        PoolManager.Instance.EffFlyItemPool.putObjToPool(this);
+        //PoolManager.Instance.EffFlyItemPool.putObjToPool(this);
+        ResManager.Instance.PutObjToPool<EffectFlyItem>(GameObjEunm.effectFlyItem,this);
     }
 }

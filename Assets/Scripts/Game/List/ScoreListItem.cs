@@ -150,6 +150,7 @@ public class ScoreListItem : MonoBehaviour
         this.transform.position = new Vector3(10000, 10000, 0);
         this.OnHide(true);
         this.OnSetRenderClipRange(GameCfg.spriteClipRange);
-        PoolManager.Instance.ScoreListItemPool.putObjToPool(this);
+        //PoolManager.Instance.ScoreListItemPool.putObjToPool(this);
+        ResManager.Instance.PutObjToPool<ScoreListItem>(GameObjEunm.scoreListItem,this);
     }
 }

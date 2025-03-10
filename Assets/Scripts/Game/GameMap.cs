@@ -12,14 +12,14 @@ public class GameMap
     public void OnInitLayout(GameObject grid)
     {
         this.grid = grid;
-        this.CreateBG(ResManager.Instance.slotBGPrefab);
+        this.CreateBG();
         this.CreteSlot(grid);
         key = new Vector2Int();
     }
 
-    void CreateBG(GameObject slotBGPrefab)
+    void CreateBG()
     {
-        bg = GameObject.Instantiate(slotBGPrefab);
+        bg = ResManager.Instance.InstantiateObj<GameObject>(GameObjEunm.bg);
     }
 
     void CreteSlot(GameObject grid)

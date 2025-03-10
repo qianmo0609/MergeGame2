@@ -116,6 +116,7 @@ public class GemsItem : MonoBehaviour
         this.isFull = false;
         this.isRemove = false;
         this.spriteRenderer.sortingOrder = 4;
-        PoolManager.Instance.gemsPool.putObjToPool(this);
+        //PoolManager.Instance.gemsPool.putObjToPool(this);
+        ResManager.Instance.PutObjToPool<GemsItem>(GameObjEunm.gemItem,this);
     }
 }

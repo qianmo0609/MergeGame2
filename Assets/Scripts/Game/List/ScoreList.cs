@@ -27,7 +27,7 @@ public class ScoreList
     public void AddItem(MergeInfo mergeInfo)
     {
         //生成一个飞行物体，飞行完成后，生成一个Gem
-        EffectFlyItem ef = CreateFactory.Instance.CreateGameObj<EffectFlyItem>(GameObjEunm.effectFlyItem);
+        EffectFlyItem ef = ResManager.Instance.CreateGameObj<EffectFlyItem>(GameObjEunm.effectFlyItem);
         this.MoveItem();
         ef.OnInitInfo(mergeInfo,this.ListObj.TransformPoint(Vector3.zero), ResManager.Instance.gemsSprites[mergeInfo.type], this.FlyCB);
     }
@@ -51,7 +51,7 @@ public class ScoreList
     public void DisplayGem(MergeInfo mergeInfo)
     {
         //增加显示的Item
-        ScoreListItem sl = CreateFactory.Instance.CreateGameObj<ScoreListItem>(GameObjEunm.scoreListItem);
+        ScoreListItem sl = ResManager.Instance.CreateGameObj<ScoreListItem>(GameObjEunm.scoreListItem);
         sl.OnSetInfo(ResManager.Instance.gemsSprites[mergeInfo.type], mergeInfo.num);
         sl.transform.parent = ListObj;
         sl.transform.localPosition = Vector3.zero;

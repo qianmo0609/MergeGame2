@@ -132,7 +132,7 @@ public class GameMgr : MonoSingleton<GameMgr>
 
     GemsItem CreateOneGemItem(Vector3 pos, DirEnum dir, Vector2Int idx,bool isCreateBomb = false)
     {
-        GemsItem gemItem = CreateFactory.Instance.CreateGameObj<GemsItem>(GameObjEunm.gemItem);
+        GemsItem gemItem = ResManager.Instance.CreateGameObj<GemsItem>(GameObjEunm.gemItem);
         gemItem.transform.SetParent(grid.transform);
         gemItem.transform.position = pos;
         if (ResManager.Instance.gemsSprites.Length > 0)

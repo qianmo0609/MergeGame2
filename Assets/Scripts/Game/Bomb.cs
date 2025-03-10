@@ -36,6 +36,7 @@ public class Bomb : EffectFlyItem
     public override void RecycleSelf()
     {
         this.transform.position = new Vector3(10000, 10000, 0);
-        PoolManager.Instance.BombItemPool.putObjToPool(this);
+        //PoolManager.Instance.BombItemPool.putObjToPool(this);
+        ResManager.Instance.PutObjToPool<Bomb>(GameObjEunm.bomb,this);
     }
 }

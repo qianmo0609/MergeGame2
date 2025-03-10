@@ -91,6 +91,9 @@ public static class ConstValue
     public static string slotBGPath = "Res/Prefabs/BG";
     public static string effectItemPath = "Res/Prefabs/EffectText";
     public static string scoreListItemPath = "Res/Prefabs/ScoreListItem";
+    public static string gemPrefabPath = "Res/Prefabs/GemsItem";
+    public static string bombItemPrefabPath = "Res/Prefabs/BombItem";
+    public static string effectFlyItemPrefabPath = "Res/Prefabs/EffectFlyItem";
     public static string gemItemPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_";
     public static string largeBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_97"; //¥Û’®µØ
     public static string verBombPath = "Res/GameSprite/GameItem/sxyx_main sxyx_main_94"; // ˙œÚ’®µØ
@@ -119,5 +122,7 @@ public enum GameObjEunm
     loopListItem,
     scoreListItem,
     bombEffct,
-    bottomWall
+    bottomWall,
+    bg,
+    uiRoot
 }
