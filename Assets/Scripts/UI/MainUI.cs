@@ -8,6 +8,9 @@ public class MainUI : UIBase
     [SerializeField] UILabel comboLable;
     [SerializeField] UISprite comboSprite;
 
+    Vector3 punchMagnitudeMin;
+    Vector3 punchMagnitudeMax;
+
     private void Start()
     {
         btnStart.onClick.Add(new EventDelegate(OnStartEvent));
@@ -15,6 +18,8 @@ public class MainUI : UIBase
         EventCenter.Instance.RegisterEvent(EventNum.ShowComboLabel,this.OnShowComboLabel);
         EventCenter.Instance.RegisterEvent(EventNum.HideComboLabel,this.OnHideComboLabel);
         EventCenter.Instance.RegisterEvent(EventNum.EnableOrDisableBtnStartEvent, this.EnableOrDisableStartBtn);
+        punchMagnitudeMax = Vector3.one * 2f;
+        punchMagnitudeMin = Vector3.one * .5f;
     }
 
     private void OnStartEvent()
@@ -46,7 +51,7 @@ public class MainUI : UIBase
         comboLable.transform.DOComplete();
         comboLable.gameObject.SetActive(true);
         comboSprite.gameObject.SetActive(true);
-        comboLable.transform.DOPunchScale(Vector3.one * 2f,.4f,vibrato:0, elasticity:0);
+        comboLable.transform.DOPunchScale(GameCfg.comboNum>9? punchMagnitudeMax:punchMagnitudeMin, .4f,vibrato:0, elasticity:0);
         comboLable.text = GameCfg.comboNum.ToString();
     }
 

@@ -200,6 +200,7 @@ GameObject:
   - component: {fileID: 1044963132728699050}
   - component: {fileID: 2152236889940551332}
   - component: {fileID: -6854102776961655125}
+  - component: {fileID: 3604238979419410275}
   m_Layer: 5
   m_Name: GamePanel
   m_TagString: Untagged
@@ -227,8 +228,8 @@ Transform:
   - {fileID: 2415619900817217884}
   - {fileID: 6002908141545916840}
   - {fileID: 1550592989159913581}
-  - {fileID: 8467026147049097725}
   - {fileID: 6689556121156606576}
+  - {fileID: 8467026147049097725}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2152236889940551332
@@ -298,6 +299,33 @@ MonoBehaviour:
   btnHandUp: {fileID: 4257675574582282519}
   comboLable: {fileID: 1320682909075293725}
   comboSprite: {fileID: 7334349672620004030}
+--- !u!54 &3604238979419410275
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565904944504287977}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &586865841665977262
 GameObject:
   m_ObjectHideFlags: 0
@@ -1607,7 +1635,7 @@ MonoBehaviour:
   mPivot: 4
   mWidth: 276
   mHeight: 50
-  mDepth: 5
+  mDepth: 6
   mMat: {fileID: 0}
   autoResizeBoxCollider: 0
   hideIfOffScreen: 0
@@ -1934,7 +1962,7 @@ MonoBehaviour:
   mPivot: 4
   mWidth: 124
   mHeight: 64
-  mDepth: 6
+  mDepth: 5
   mMat: {fileID: 0}
   autoResizeBoxCollider: 0
   hideIfOffScreen: 0
