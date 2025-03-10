@@ -11,7 +11,7 @@ public class GameStart : MonoBehaviour
         EventCenter.Instance.OnInit();
         PoolManager.Instance.OnInit();
         ResManager.Instance.OnInit();
-        LocalData.Instance.OnInit();
+        //LocalData.Instance.OnInit();
         CreateFactory.Instance.OnInit();
         UIManager.Instance.OnInit();
         GameMgr.Instance.OnInit();
@@ -20,7 +20,7 @@ public class GameStart : MonoBehaviour
 
     private void OnDestroy()
     {
-        LocalData.Instance.OnDisable();
+        //LocalData.Instance.OnDisable();
         PoolManager.Instance.OnDestroy();
         EventCenter.Instance.Disable();
         UIManager.Instance.OnDestroy();

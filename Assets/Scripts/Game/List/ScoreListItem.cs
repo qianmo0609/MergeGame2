@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -58,11 +59,12 @@ public class ScoreListItem : MonoBehaviour
         int shiValue = num / 10;
         if (shiValue > 0)
         {
+            Debug.Log($"{shiValue},{num}");
             //如果是两位数
             scoreShi.gameObject.SetActive(true);
             pos.x = GameCfg.scoreListNumDoubleX;
             //设置十位数字
-            scoreShi.sprite = ResManager.Instance.comboSprites[shiValue - 1];
+            scoreShi.sprite = ResManager.Instance.comboSprites[shiValue];
         }
         else
         {
@@ -144,6 +146,7 @@ public class ScoreListItem : MonoBehaviour
     /// </summary>
     public void OnRecycleSelf()
     {
+        this.transform.DOComplete();
         this.transform.parent = null;
         this.transform.position = new Vector3(10000, 10000, 0);
         this.OnHide(true);

@@ -5,9 +5,7 @@ using UnityEngine;
 public class ScoreList
 {
     Transform ListObj;
-    Vector3 currentPos;
     List<ScoreListItem> scoreListCollection;
-    int maxDisplayNum;
     int maxNum;
 
     int currentButtomIdx;
@@ -22,8 +20,8 @@ public class ScoreList
     {
         maxNum = GameCfg.scoreListItemMaxNum;
         scoreListCollection = new List<ScoreListItem>(maxNum);
-        currentPos = GameCfg.scoreListStartPoss[GameCfg.level - 1];
         currentButtomIdx = 0;
+        EventCenter.Instance.RegisterEvent(EventNum.ClearScoreListEvent,this.ClearCollection);
     }
 
     public void AddItem(MergeInfo mergeInfo)
@@ -98,20 +96,14 @@ public class ScoreList
         return idx;
     }
 
-    public Vector3 GetNextItemPos()
-    {
-        return currentPos + new Vector3(GameCfg.flyTOPosOffsetX, GameCfg.scoreListItemInterval, 0);
-    }  
-
     void ClearCollection()
     {
         for (int i = scoreListCollection.Count - 1; i >=0 ; i--)
         {
-            ScoreListItem sl = scoreListCollection[i];
-            sl.SetItemState(false,GameCfg.spriteRange);
-            sl.IsFull = true;
+            scoreListCollection[i].OnRecycleSelf();
         }
         scoreListCollection.Clear();
+        this.currentButtomIdx = 0;
     }
 
     public void OnRestInfo()

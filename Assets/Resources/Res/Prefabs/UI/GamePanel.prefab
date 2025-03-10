@@ -228,6 +228,7 @@ Transform:
   - {fileID: 6002908141545916840}
   - {fileID: 1550592989159913581}
   - {fileID: 8467026147049097725}
+  - {fileID: 6689556121156606576}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2152236889940551332
@@ -296,6 +297,7 @@ MonoBehaviour:
   btnStart: {fileID: 6441506158925642100}
   btnHandUp: {fileID: 4257675574582282519}
   comboLable: {fileID: 1320682909075293725}
+  comboSprite: {fileID: 7334349672620004030}
 --- !u!1 &586865841665977262
 GameObject:
   m_ObjectHideFlags: 0
@@ -1569,8 +1571,7 @@ Transform:
   m_LocalPosition: {x: -448, y: 187, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6689556121156606576}
+  m_Children: []
   m_Father: {fileID: 1044963132728699050}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1320682909075293725
@@ -1884,7 +1885,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6689556121156606576
 Transform:
   m_ObjectHideFlags: 0
@@ -1894,11 +1895,11 @@ Transform:
   m_GameObject: {fileID: 4248503920741089484}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 109.99994, y: 3.0000305, z: 0}
+  m_LocalPosition: {x: -338.00006, y: 190.00003, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8467026147049097725}
+  m_Father: {fileID: 1044963132728699050}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7334349672620004030
 MonoBehaviour:

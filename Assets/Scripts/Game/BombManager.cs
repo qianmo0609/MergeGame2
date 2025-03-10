@@ -23,11 +23,11 @@ public struct BombItemInfo
 /// </summary>
 public class BombManager
 {
-    Dictionary<int, MergeInfo> mergeInfos; //用于加快查询物体的分数信息
+    Dictionary<int, MergeInfo> mergeInfosDic; //用于加快查询物体的分数信息
 
     public BombManager()
     {
-        mergeInfos = new Dictionary<int, MergeInfo>();  
+        mergeInfosDic = new Dictionary<int, MergeInfo>();  
     }
 
     public void SwitchBomb(int count,Vector2Int[] gemsItem, GemsItem[,] gemsItemCollection, List<BombItemInfo> bombItems)
@@ -118,6 +118,54 @@ public class BombManager
 
         return false;
     }
+
+    /// <summary>
+    /// 检测T字型和十字型
+    /// </summary>
+    /// <param name="gemsItem"></param>
+    /// <returns></returns>
+    bool IsTOrCrossShape(Vector2Int[] gemsItem)
+    {
+        if (gemsItem.Length > 6) return false;
+        foreach (var center in gemsItem)
+        {
+            int upCount = 0, downCount = 0, leftCount = 0, rightCount = 0;
+            foreach (var point in gemsItem)
+            {
+                if (point.y == center.y)
+                {
+                    if (point.x < center.x) upCount++;
+                    if (point.x > center.x) downCount++;
+                }
+                if (point.x == center.x)
+                {
+                    if (point.y < center.y) leftCount++;
+                    if (point.y > center.y) rightCount++;
+                }
+            }
+
+            //前两种T型判断
+            if ((upCount + downCount >= 2) && ((leftCount >= 2 && rightCount >= 0 && rightCount < 2) || (leftCount >= 0 && leftCount < 2 && rightCount >= 2)))
+            {
+                return true;
+            }
+
+            //后两种T型判断
+            if ((leftCount + rightCount >= 2) && ((upCount >= 2 && downCount >= 0 && downCount < 2) || (upCount >= 0 && upCount < 2 && downCount >= 2)))
+            {
+                return true;
+            }
+
+
+            //十字型判断
+            if ((upCount >= 1 && downCount >= 1) && (leftCount >= 1 && rightCount >= 1))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public bool IsTShape(Vector2Int[] gemsItem)
     {
@@ -299,17 +347,20 @@ public class BombManager
         GemsItem g = null;
         //如果是横向消除则消除一行
         HashSet<Vector2Int> gems = new HashSet<Vector2Int>(GameCfg.col);
-        List<MergeInfo> mergeInfos = new List<MergeInfo>(); 
+        List<MergeInfo> mergeInfos = new List<MergeInfo>();
+
         for (int i = 0; i < GameCfg.col; i++)
         {
             g = gemsItemsCollect[pos.x, i];
             if(g!= null && (g.IsBomb & (BombType.none | BombType.hor)) == 0)
             {
                 gems.Add(g.Idx);
+                this.AddMergeInfoToDic(g);
             }
         }
         gems.Add(pos);
         gemsItems.Add(gems);
+        this.DicDataToList(bombMergeInfos);
     }
 
     /// <summary>
@@ -329,10 +380,12 @@ public class BombManager
             if (g != null && (g.IsBomb & (BombType.none|BombType.ver)) == 0)
             {
                 gems.Add(g.Idx);
+                this.AddMergeInfoToDic(g);
             }
         }
         gems.Add(pos);
         gemsItems.Add(gems);
+        this.DicDataToList(bombMergeInfos);
     }
 
     /// <summary>
@@ -393,6 +446,7 @@ public class BombManager
         }
         gems.Add(pos);
         gemsItems.Add(gems);
+        this.DicDataToList(bombMergeInfos);
     }
 
     /// <summary>
@@ -419,10 +473,12 @@ public class BombManager
             {
                 //如果当前物体不是炸弹才添加到消除物体
                 gems.Add(g.Idx);
+                this.AddMergeInfoToDic(g);
             }
         }
         gems.Add(pos);
         gemsItems.Add(gems);
+        this.DicDataToList(bombMergeInfos);
     }
 
     /// <summary>
@@ -443,6 +499,7 @@ public class BombManager
                 if (g != null && (g.GemType & gemType) != 0)
                 {
                     gems.Add(g.Idx);
+                    this.AddMergeInfoToDic(g);
                 }
             }
         }
@@ -465,8 +522,40 @@ public class BombManager
                 if (g!= null && !g.IsRemove)
                 {
                     gems.Add(g.Idx);
+                    this.AddMergeInfoToDic(g);
                 }
             }
         }
+    }
+
+    void AddMergeInfoToDic(GemsItem g)
+    {
+        MergeInfo mergeInfo;
+        if (!mergeInfosDic.ContainsKey(g.Type))
+        {
+            mergeInfo = new MergeInfo { type = g.Type, num = 1, row = g.Idx.x, col = g.Idx.y };
+            mergeInfosDic.Add(g.Type, mergeInfo);
+        }
+        else
+        {
+            mergeInfo = mergeInfosDic[g.Type];
+            mergeInfo.num++;
+            mergeInfosDic[g.Type] = mergeInfo;
+        }
+    }
+
+    void DicDataToList(List<List<MergeInfo>> bombMergeInfos)
+    {
+        MergeInfo mergeInfo;
+        List<MergeInfo> data = new List<MergeInfo>();
+        for (int i = 0; i < 5; i++)
+        {
+            if (mergeInfosDic.TryGetValue(i,out mergeInfo))
+            {
+                data.Add(mergeInfo);
+            }
+        }
+        bombMergeInfos.Add(data);
+        mergeInfosDic.Clear();
     }
 }

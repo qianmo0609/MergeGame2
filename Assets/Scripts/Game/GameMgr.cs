@@ -51,7 +51,7 @@ public class GameMgr : MonoSingleton<GameMgr>
         mapFlag = new int[GameCfg.row, GameCfg.col];
         gemsItems = new List<HashSet<Vector2Int>>();
         this.isFirst = true;
-        EventCenter.Instance.RegisterEvent(EventNum.startEvent, this.StartRandomFull);
+        EventCenter.Instance.RegisterEvent(EventNum.StartEvent, this.StartRandomFull);
     }
 
     void CreateWS()
@@ -159,6 +159,9 @@ public class GameMgr : MonoSingleton<GameMgr>
         else
         {
             gemRandomFullCoroutine = StartCoroutine(RandomFull());
+            EventCenter.Instance.ExcuteEvent(EventNum.ClearScoreListEvent);
+            EventCenter.Instance.ExcuteEvent(EventNum.HideComboLabel);
+            GameCfg.comboNum = 0;
         }
     }
 
@@ -498,21 +501,21 @@ public class GameMgr : MonoSingleton<GameMgr>
                     //非炸弹合并时执行
                     if (!isBombMerge)
                         this.CreateFlyGemItem(gemMergeInfos[i]);
-                    else
-                    {
-                        //炸弹合并消除时需要另一种方式,每颗炸弹消除的物体类型不一样，需要将消除的类型一一显示
-                        for (int x = 0; x < bombMergeInfo[i].Count; x++)
-                        {
-                            this.CreateFlyGemItem(bombMergeInfo[i][x]);
-                            yield return new WaitForSeconds(.3f);
-                        }
-                    }
                     isPlayEffectTxt = false;
                 }
                 //Debug.Log(gemsItemsCollect[item.x, item.y]);
                 gemsItemsCollect[item.x,item.y]?.PlayMergeEffect();
             }
-            
+
+            if (isBombMerge)
+            {
+                //炸弹合并消除时需要另一种方式,每颗炸弹消除的物体类型不一样，需要将消除的类型一一显示
+                for (int x = 0; x < bombMergeInfo[i].Count; x++)
+                {
+                    this.CreateFlyGemItem(bombMergeInfo[i][x]);
+                    yield return new WaitForSeconds(.8f);
+                }
+            }
             yield return new WaitForSeconds(.8f);
         }
         GemsItem g;
@@ -586,6 +589,8 @@ public class GameMgr : MonoSingleton<GameMgr>
     {
         //增加从一个飞行物体飞到指定位置
         scoreList.AddItem(mergeInfo);
+        GameCfg.comboNum++;
+        EventCenter.Instance.ExcuteEvent(EventNum.ShowComboLabel);
     }
 
     void MergeGemAndMove(int x, int y) 
