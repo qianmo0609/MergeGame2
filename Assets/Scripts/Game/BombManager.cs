@@ -406,7 +406,8 @@ public class BombManager
             if (current.x < 0 || current.x >= GameCfg.row) continue;
             if (current.y < 0 || current.y >= GameCfg.col) continue;
             g = gemsItemsCollect[current.x, current.y];
-            if (g == null && g.IsBomb == BombType.none) continue;
+            //如果该位置的值是空的，或者不是炸弹则跳过
+            if (g == null || (g.IsBomb & BombType.none) != 0) continue;
             bts.Add(g);
             
             //如果当前的炸弹类型不是超级炸弹或者不是空就可以赋值,当前如果周围存在超级炸弹了，
@@ -462,7 +463,7 @@ public class BombManager
             {
                 //取这个格子中物体的GemType
                 //获取这个类型的所有物体，加入到gesItems中
-                this.FindTarTypeItem(pos, g.GemType, gemsItemsCollect, gems);
+                this.FindTarTypeItem(pos, g.Type, gemsItemsCollect, gems);
             }
         }
         gems.Add(pos);
@@ -490,11 +491,11 @@ public class BombManager
             if (current.y < 0 || current.y >= GameCfg.col) continue;
 
             g = gemsItemsCollect[current.x, current.y];
-            if(g!= null && g.IsBomb == BombType.none)
+            if (g != null && g.IsBomb == BombType.none)
             {
                 //如果当前物体不是炸弹才添加到消除物体
                 gems.Add(g.Idx);
-                this.AddMergeInfoToDic(pos,g);
+                this.AddMergeInfoToDic(pos, g);
             }
         }
         gems.Add(pos);
@@ -508,7 +509,7 @@ public class BombManager
     /// <param name="gemType">指定的类型</param>
     /// <param name="gemsItemsCollect">存储物体的数组</param>
     /// /// <param name="gemsItems">要消除物体的集合</param>
-    void FindTarTypeItem(Vector2Int pos,int gemType, GemsItem[,] gemsItemsCollect, HashSet<Vector2Int> gems)
+    void FindTarTypeItem(Vector2Int pos,int type, GemsItem[,] gemsItemsCollect, HashSet<Vector2Int> gems)
     {
         GemsItem g = null;
         for (int i = 0; i < GameCfg.row; i++)
@@ -517,10 +518,10 @@ public class BombManager
             {
                 g = gemsItemsCollect[i, j];
                 //如果是与目标类型相同的Item则添加到移除列表
-                if (g != null && (g.GemType & gemType) != 0)
+                if (g != null && g.Type == type)
                 {
                     gems.Add(g.Idx);
-                    this.AddMergeInfoToDic(pos,g);
+                    this.AddMergeInfoToDic(pos, g);
                 }
             }
         }

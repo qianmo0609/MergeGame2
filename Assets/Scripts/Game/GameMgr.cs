@@ -139,9 +139,9 @@ public class GameMgr : MonoSingleton<GameMgr>
     void TestBomb()
     {
         //横五个
-        //Debug.Log(bombManager.IsLine5(new Vector2Int[] { new Vector2Int(3,1), new Vector2Int(3,2), new Vector2Int(3,3) , new Vector2Int(3,4) , new Vector2Int(3,5) }));
+        Debug.Log(bombManager.IsLine5(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(3, 4), new Vector2Int(3, 5) }));
         //竖五个
-        //Debug.Log(bombManager.IsLine5(new Vector2Int[] { new Vector2Int(1,1), new Vector2Int(2, 1), new Vector2Int(3, 1), new Vector2Int(4, 1), new Vector2Int(5, 1) }));
+        Debug.Log(bombManager.IsLine5(new Vector2Int[] { new Vector2Int(1, 1), new Vector2Int(2, 1), new Vector2Int(3, 1), new Vector2Int(4, 1), new Vector2Int(5, 1) }));
 
         //     bool isT = false;
         //     //Tshap;
@@ -446,16 +446,22 @@ public class GameMgr : MonoSingleton<GameMgr>
         if (bombItems.Count > 0)
         {
             BombItemInfo bombItemInfo;
-            for (int i = 0; i < bombItems.Count; i++)
+            //不能一下子把炸弹的消除都计算完，因为每个炸弹消除完会有移动的操作
+            //如果一下子计算完，会使消除的物体显示不对
+            for (int i = bombItems.Count - 1; i >= 0 ; i--)
             {
                 bombItemInfo = bombItems[i];
                 //如果缓存的炸弹类型是none则说明已经被超级炸弹置空了
-                if (bombItemInfo.gem.IsBomb == BombType.none) continue;
-                //处理对应炸弹功能
-                bombManager.HandlerBomb(bombItemInfo, gemCtl.gemsItemsCollect, gemsItems,bombItems,bombMergeInfo);
+                if (bombItemInfo.gem.IsBomb != BombType.none)
+                {
+                    //处理对应炸弹功能
+                    bombManager.HandlerBomb(bombItemInfo, gemCtl.gemsItemsCollect, gemsItems, bombItems, bombMergeInfo);
+                    bombItems.RemoveAt(bombItems.Count - 1);
+                    break;
+                }
             }
             //清除炸弹信息
-            bombItems.Clear();
+            //bombItems.Clear();
             //炸弹将所有需要移除的物体添加后，执行合并操作
             gemMergeCoroutione = StartCoroutine(MergeGems(true));
         }
