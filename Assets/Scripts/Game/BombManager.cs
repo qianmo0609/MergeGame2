@@ -65,7 +65,15 @@ public class BombManager
                 gemsItemCollection[pos.x, pos.y].IsBomb = BombType.super;
                 bombItems.Add(new BombItemInfo { gem = gemsItemCollection[pos.x, pos.y], bombType = BombType.super });
             }
-            else if(this.IsTShape(gemsItem) || this.IsLShape(gemsItem) || this.IsCrossShape(gemsItem))
+            //else if(this.IsTShape(gemsItem) || this.IsLShape(gemsItem) || this.IsCrossShape(gemsItem))
+            //{
+            //    //生成大炸弹
+            //    //Debug.Log("生成大炸弹");
+            //    pos = gemsItem[count / 2];
+            //    gemsItemCollection[pos.x, pos.y].IsBomb = BombType.large;
+            //    bombItems.Add(new BombItemInfo { gem = gemsItemCollection[pos.x, pos.y], bombType = BombType.large });
+            //}
+            else if (this.DetectTLAndCrossShape(gemsItem))
             {
                 //生成大炸弹
                 //Debug.Log("生成大炸弹");
@@ -78,6 +86,20 @@ public class BombManager
         //其他数量则也不需要处理
     }
 
+    /// <summary>
+    /// 检测T和L形状
+    /// </summary>
+    bool DetectTLAndCrossShape(Vector2Int[] gemsItem)
+    {
+        //T是一种特殊的L,十字型也可以看成一种特殊的L
+        return this.IsLShape(gemsItem);
+    }
+
+    /// <summary>
+    /// 判断是否为五个连成一线
+    /// </summary>
+    /// <param name="gemsItem"></param>
+    /// <returns></returns>
     public bool IsLine5(Vector2Int[] gemsItem)
     {
         //只要包含5个联排生成一个大炸弹
@@ -118,55 +140,12 @@ public class BombManager
 
         return false;
     }
-
+    
     /// <summary>
-    /// 检测T字型和十字型
+    /// 判断是否是T字型
     /// </summary>
     /// <param name="gemsItem"></param>
     /// <returns></returns>
-    bool IsTOrCrossShape(Vector2Int[] gemsItem)
-    {
-        if (gemsItem.Length > 6) return false;
-        foreach (var center in gemsItem)
-        {
-            int upCount = 0, downCount = 0, leftCount = 0, rightCount = 0;
-            foreach (var point in gemsItem)
-            {
-                if (point.y == center.y)
-                {
-                    if (point.x < center.x) upCount++;
-                    if (point.x > center.x) downCount++;
-                }
-                if (point.x == center.x)
-                {
-                    if (point.y < center.y) leftCount++;
-                    if (point.y > center.y) rightCount++;
-                }
-            }
-
-            //前两种T型判断
-            if ((upCount + downCount >= 2) && ((leftCount >= 2 && rightCount >= 0 && rightCount < 2) || (leftCount >= 0 && leftCount < 2 && rightCount >= 2)))
-            {
-                return true;
-            }
-
-            //后两种T型判断
-            if ((leftCount + rightCount >= 2) && ((upCount >= 2 && downCount >= 0 && downCount < 2) || (upCount >= 0 && upCount < 2 && downCount >= 2)))
-            {
-                return true;
-            }
-
-
-            //十字型判断
-            if ((upCount >= 1 && downCount >= 1) && (leftCount >= 1 && rightCount >= 1))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
     public bool IsTShape(Vector2Int[] gemsItem)
     {
         /*
@@ -214,6 +193,11 @@ public class BombManager
         return false;
     }
 
+    /// <summary>
+    /// 判断是否是L型
+    /// </summary>
+    /// <param name="gemsItem"></param>
+    /// <returns></returns>
     public bool IsLShape(Vector2Int[] gemsItem)
     {
         /*
@@ -276,7 +260,7 @@ public class BombManager
     {
         /*
               ￥
-            ￥￥￥
+            ￥￥￥  ....
               ￥
         */
         //行上列上可能不止三个点，可能是四个点、六、七、八、九
@@ -285,7 +269,7 @@ public class BombManager
 
         //遍历每个点作为中心点，统计该中心点上下左右方向的连通点数量。
         //若上下和左右方向分别至少有 2 个连通点（加上中心点就构成两组 3 个元素），则判定为十字型
-        if (gemsItem.Length > 5) return false;
+        if (gemsItem.Length > 6) return false;
         foreach (var center in gemsItem)
         {
             int upCount = 0, downCount = 0, leftCount = 0, rightCount = 0;
@@ -310,6 +294,14 @@ public class BombManager
         return false;
     }
 
+    /// <summary>
+    /// 处理炸弹
+    /// </summary>
+    /// <param name="bi"></param>
+    /// <param name="gemsItemsCollect"></param>
+    /// <param name="gemsItems"></param>
+    /// <param name="bombItems"></param>
+    /// <param name="bombMergeInfos"></param>
     public void HandlerBomb(BombItemInfo bi, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems,List<BombItemInfo> bombItems,List<List<MergeInfo>> bombMergeInfos)
     {
         if (bi.bombType == BombType.hor)
@@ -354,6 +346,8 @@ public class BombManager
             g = gemsItemsCollect[pos.x, i];
             if(g!= null && (g.IsBomb & (BombType.none | BombType.hor)) != 0)
             {
+                //如果同是横向炸弹，则会直接将横向炸弹消除
+                g.IsBomb = BombType.none;
                 gems.Add(g.Idx);
                 this.AddMergeInfoToDic(pos,g);
             }
@@ -379,6 +373,8 @@ public class BombManager
             g = gemsItemsCollect[i, pos.y];
             if (g != null && (g.IsBomb & (BombType.none|BombType.ver)) != 0)
             {
+                //如果同是竖向炸弹，则会直接将竖向消除
+                g.IsBomb = BombType.none;
                 gems.Add(g.Idx);
                 this.AddMergeInfoToDic(pos,g);
             }
@@ -398,7 +394,8 @@ public class BombManager
     void HandlerSuperMerge(Vector2Int pos, GemsItem[,] gemsItemsCollect, List<HashSet<Vector2Int>> gemsItems, List<BombItemInfo> bombItems, List<List<MergeInfo>> bombMergeInfos)
     {
         Vector2Int current;
-        BombType bt = BombType.none;
+        List<GemsItem> bts = new List<GemsItem>(4);
+        BombType bombType = BombType.none;
         HashSet<Vector2Int> gems = new HashSet<Vector2Int>();
         GemsItem g = null;
         //检查四个方向有没有炸弹
@@ -409,21 +406,38 @@ public class BombManager
             if (current.x < 0 || current.x >= GameCfg.row) continue;
             if (current.y < 0 || current.y >= GameCfg.col) continue;
             g = gemsItemsCollect[current.x, current.y];
-            if (g == null) continue;
-            bt = g.IsBomb;
+            if (g == null && g.IsBomb == BombType.none) continue;
+            bts.Add(g);
+            
+            //如果当前的炸弹类型不是超级炸弹或者不是空就可以赋值,当前如果周围存在超级炸弹了，
+            //就直接按超级炸弹和超级炸弹的组合,否则按超级炸弹和其他炸弹的组合
+            if ((bombType & (BombType.super | BombType.none)) == 0)
+            {
+                bombType = g.IsBomb;
+            }
         }
-        if(bt == BombType.super)
+
+        //将周围所有炸弹置空，并添加到消除列表
+        for (int i = 0; i < bts.Count; i++)
+        {
+            g = bts[i];
+            //将炸弹移除
+            g.IsBomb = BombType.none;
+            gems.Add(g.Idx);
+        }
+
+        if (bombType == BombType.super)
         {
             //如果有超级炸弹
             //将所有格子中没被销毁的物体加入到gemsItems中
-            this.FindNotHaveDestroyItem(pos,gemsItemsCollect, gems);
+            this.FindNotHaveDestroyItem(pos, gemsItemsCollect, gems);
         }
-        else if(bt != BombType.none)
+        else if (bombType != BombType.none)
         {
             //如果有其他炸弹，则
             //随机一个类型
             //将此类型的所有物体加入到gemsItems中
-            this.FindTarTypeItem(pos,Utils.randomAGemType(0, 5), gemsItemsCollect, gems);
+            this.FindTarTypeItem(pos, Utils.randomAGemType(0, 5), gemsItemsCollect, gems);
         }
         else
         {

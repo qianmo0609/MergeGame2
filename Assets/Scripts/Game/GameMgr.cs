@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 
 public class GameMgr : MonoSingleton<GameMgr>
@@ -142,99 +143,99 @@ public class GameMgr : MonoSingleton<GameMgr>
         //竖五个
         //Debug.Log(bombManager.IsLine5(new Vector2Int[] { new Vector2Int(1,1), new Vector2Int(2, 1), new Vector2Int(3, 1), new Vector2Int(4, 1), new Vector2Int(5, 1) }));
 
-        //bool isT = false;
-        //Tshap;
-        ///*
-        //      0           
-        //    000
-        //      0
-        // */
-        //isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3),new Vector2Int(2,3), new Vector2Int(4, 3) });
-        //Debug.Log(isT);
-        ///*
-        //    0
-        //    000
-        //    0
-        // */
-        //isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 1), new Vector2Int(4, 1) });
-        //Debug.Log(isT);
-        ///*
-        // 0 0 0
-        //   0
-        //   0
-        // */
-        //isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 2), new Vector2Int(5, 2) });
-        //Debug.Log(isT);
-        ///*
-        //  0
-        //  0
-        //0 0 0
-        // */
-        //isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 2), new Vector2Int(2, 2) });
-        //Debug.Log(isT);
+        //     bool isT = false;
+        //     //Tshap;
+        //     /*
+        //           0           
+        //         000
+        //           0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 3), new Vector2Int(4, 3) });
+        //     Debug.Log(isT);
+        //     /*
+        //         0
+        //         000
+        //         0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 1), new Vector2Int(4, 1) });
+        //     Debug.Log(isT);
+        //     /*
+        //      0 0 0
+        //        0
+        //        0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 2), new Vector2Int(5, 2) });
+        //     Debug.Log(isT);
+        //     /*
+        //       0
+        //       0
+        //     0 0 0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 2), new Vector2Int(2, 2) });
+        //     Debug.Log(isT);
 
-        
-   //     /*
-   //      0           
-   //   0000
-   //      0
-   //*/
-   //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 0),new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 3), new Vector2Int(4, 3) });
-   //     Debug.Log(isT);
-   //     /*
-   //         0
-   //         0000
-   //         0
-   //      */
-   //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 0),new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 0), new Vector2Int(4, 0) });
-   //     Debug.Log(isT);
-   //     /*
-   //      0 0 0
-   //        0
-   //        0
-   //        0
-   //      */
-   //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 2), new Vector2Int(5, 2), new Vector2Int(5, 3) });
-   //     Debug.Log(isT);
-   //     /*
-   //       0
-   //       0
-   //       0
-   //     0 0 0
-   //      */
-   //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(0, 2),new Vector2Int(1, 2), new Vector2Int(2, 2) });
-   //     Debug.Log(isT);
+
+        //     /*
+        //      0           
+        //   0000
+        //      0
+        //*/
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 0), new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 3), new Vector2Int(4, 3) });
+        //     Debug.Log(isT);
+        //     /*
+        //         0
+        //         0000
+        //         0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 0), new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(2, 0), new Vector2Int(4, 0) });
+        //     Debug.Log(isT);
+        //     /*
+        //      0 0 0
+        //        0
+        //        0
+        //        0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 2), new Vector2Int(5, 2), new Vector2Int(5, 3) });
+        //     Debug.Log(isT);
+        //     /*
+        //       0
+        //       0
+        //       0
+        //     0 0 0
+        //      */
+        //     isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(0, 2), new Vector2Int(1, 2), new Vector2Int(2, 2) });
+        //     Debug.Log(isT);
 
         //Lshape
 
-    //    /*
-    //     0           
-    //     0
-    //     0 0 0
-    //*/
-    //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 1), new Vector2Int(2, 1) });
-    //    Debug.Log(isT);
-    //    /*
-    //     0 0 0
-    //     0
-    //     0
-    //     */
-    //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 1), new Vector2Int(5, 1) });
-    //    Debug.Log(isT);
-    //    /*
-    //     0 0 0
-    //         0
-    //         0
-    //     */
-    //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 3), new Vector2Int(5, 3) });
-    //    Debug.Log(isT);
-    //    /*
-    //        0
-    //        0
-    //    0 0 0
-    //     */
-    //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 3), new Vector2Int(2, 3) });
-    //    Debug.Log(isT);
+        //    /*
+        //     0           
+        //     0
+        //     0 0 0
+        //*/
+        //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 1), new Vector2Int(2, 1) });
+        //    Debug.Log(isT);
+        //    /*
+        //     0 0 0
+        //     0
+        //     0
+        //     */
+        //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 1), new Vector2Int(5, 1) });
+        //    Debug.Log(isT);
+        //    /*
+        //     0 0 0
+        //         0
+        //         0
+        //     */
+        //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(4, 3), new Vector2Int(5, 3) });
+        //    Debug.Log(isT);
+        //    /*
+        //        0
+        //        0
+        //    0 0 0
+        //     */
+        //    isT = bombManager.IsTShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 3), new Vector2Int(2, 3) });
+        //    Debug.Log(isT);
 
         //Cross Shape
         /*
@@ -242,7 +243,7 @@ public class GameMgr : MonoSingleton<GameMgr>
        0 0 0
          0 
        */
-        //isT = bombManager.IsCrossShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 2), new Vector2Int(4, 2) });
+        //isT = bombManager.IsLShape(new Vector2Int[] { new Vector2Int(3, 1), new Vector2Int(3, 2), new Vector2Int(3, 3), new Vector2Int(1, 2), new Vector2Int(4, 2) });
         //Debug.Log(isT);
     }
 #endif
@@ -444,10 +445,14 @@ public class GameMgr : MonoSingleton<GameMgr>
         //如果生成炸弹了,先处理炸弹
         if (bombItems.Count > 0)
         {
+            BombItemInfo bombItemInfo;
             for (int i = 0; i < bombItems.Count; i++)
             {
+                bombItemInfo = bombItems[i];
+                //如果缓存的炸弹类型是none则说明已经被超级炸弹置空了
+                if (bombItemInfo.gem.IsBomb == BombType.none) continue;
                 //处理对应炸弹功能
-                bombManager.HandlerBomb(bombItems[i], gemCtl.gemsItemsCollect, gemsItems,bombItems,bombMergeInfo);
+                bombManager.HandlerBomb(bombItemInfo, gemCtl.gemsItemsCollect, gemsItems,bombItems,bombMergeInfo);
             }
             //清除炸弹信息
             bombItems.Clear();
